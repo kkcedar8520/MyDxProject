@@ -1,0 +1,11 @@
+
+User Manager
+
+유저리스트를 list 형태에서 map<Socket,xUser*> 형태로 바꾼다.
+
+
+NetworkBase를 상속받아 Critical Section을 쓸 수 있도록 한다.
+
+
+유저가 들어올 때마다 New를 하는 것이 아니라 queue<NetworkBase*> 형태로 유저풀을 만들어 미리 정적할당해 유저 최대 수를 정해준다.
+

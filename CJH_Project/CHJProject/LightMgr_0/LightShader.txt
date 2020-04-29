@@ -1,0 +1,199 @@
+
+#define g_iLightNum 2
+
+
+struct VS_OUT
+{
+	float4 p : SV_POSITION;
+	float3 n : NORMAL;
+	float4 c : COLOR0;
+	float2 t : TEXCOORD0;
+	float time : TEXCOORD1;
+	float3 v: TEXCOORD2;
+};
+struct VS_IN
+{
+	float3 p : POSITION;
+	float3 n : NORMAL;
+	float4 c : COLOR;
+	float2 t : TEX;
+};
+struct VS_OUT_LINE
+{
+	float4 p : SV_POSITION;
+	float4 c : COLOR0;
+};
+struct VS_IN_LINE
+{
+	float3 p : POSITION;
+	float4 c : COLOR;
+};
+cbuffer cb_Data : register(b0)
+{
+	float4x4 g_matWorld : packoffset(c0);
+	float4x4 g_matView : packoffset(c4);
+	float4x4 g_matProj : packoffset(c8);
+	float4 time : packoffset(c12);
+	float4 Light: packoffset(c13);
+};
+cbuffer cb_Light : register(b1)
+{
+	float4 vAmbinentLightColor[g_iLightNum]: packoffset(c0);
+	float4 vDiffuseLightColor[g_iLightNum]: packoffset(c2);
+	float4 vSpecularLightColor[g_iLightNum]: packoffset(c4);
+	float4 vSpotLightColor[g_iLightNum]: packoffset(c6);		
+	float4 vLightDirection[g_iLightNum]: packoffset(c8);
+	float4 vLightPos[g_iLightNum]: packoffset(c10);
+	float4 vSpotLight[g_iLightNum]: packoffset(c12);
+	float4 vEyeDir: packoffset(c13);
+	float4 vEyePos: packoffset(c14);
+	
+};
+
+
+float4 Diffuse(float3 vNormal)
+{	
+	float4 Final=float4(0,0,0,1);
+	for(int Light=0; Light<g_iLightNum;Light++)
+	{
+		if(vLightPos[Light].w!=0)
+		{
+				return Final;
+		}
+	 float4 fIntesity=max(0,dot(vNormal,normalize(-vLightDirection[0].xyz)));
+	 Final+=vDiffuseLightColor[Light]*fIntesity;
+	}
+	  return vAmbinentLightColor[0]+Final;
+}
+float4 Specular(float3 vNormal)
+{
+	float4 Final=float4(0,0,0,1);
+	for(int Light=0; Light<g_iLightNum;Light++)
+	{
+		float3 vReflect=reflect(vLightDirection[Light].xyz,vNormal);
+		float fIntensity=max(0,dot(vReflect,normalize(-vEyeDir.xyz)));
+		float fPower=pow(fIntensity,30);
+
+		float4 cSpecular=fPower*float4(1,1,1,1);
+		
+		Final+=cSpecular;
+	}
+
+	return Final;
+}
+float4 ComputePointLight(float3 vVertexPos,float3 vNormal)
+{
+	float4 FinalColor=float4(0,0,0,1);
+	for(int Light=0; Light<g_iLightNum;Light++)
+	{
+		if(vLightPos[Light].w!=2)
+		{
+				continue;
+		}
+		float fDistance = distance(vVertexPos.xyz, vLightPos[Light].xyz);
+		float fOffset = smoothstep(fDistance - 40, fDistance, vSpotLight[Light].w - 40);
+	
+		float4 vPointLightDirection;
+		vPointLightDirection.xyz=normalize(vVertexPos.xyz-vLightPos[Light].xyz);
+
+		float fIntensity = max(0, dot(vNormal,-vPointLightDirection.xyz));
+		float4 vColor=fOffset *vDiffuseLightColor[Light];
+
+		FinalColor+=vColor;
+	
+	}
+	FinalColor.a=1.0f;
+	return FinalColor;
+}
+
+float4 ComputeSpotLight(float3 vVertexPos,float3 vNormal)
+{
+	float4 FinalColor=float4(0,0,0,1);
+	for(int Light=0; Light<g_iLightNum;Light++)
+	{
+		if(vLightPos[Light].w!=3)
+		{
+				continue;
+		}
+		float fInner=vSpotLight[Light].x;
+		float fOutnner=vSpotLight[Light].y;
+		float FallOff=vSpotLight[Light].z;
+		float fRange=vSpotLight[Light].w;
+
+		float fDistance = distance(vVertexPos.xyz, vLightPos[Light].xyz);
+
+		float3 VertexDirectionLight=normalize(vVertexPos.xyz-vLightPos[Light].xyz);
+
+		float fDot = max(0, dot(vLightDirection[Light].xyz,VertexDirectionLight.xyz));
+
+		float fIntensity = saturate(dot(vNormal.xyz,-vLightDirection[Light].xyz));
+
+		float fOffset = smoothstep(fDistance - FallOff, fDistance, fRange);
+		float fPhi = vSpotLight[Light].x - vSpotLight[Light].y;
+
+		
+	
+		if(fDot>fInner)
+		{
+
+			FinalColor+=vSpotLightColor[Light]*fIntensity*fOffset;
+
+		}
+		else
+		{
+			float fLuminanceB = 1.0f - (fInner - fDot) / fPhi;
+			fOffset=min(fOffset,fLuminanceB);
+			FinalColor+=vSpotLightColor[Light]*fIntensity*fOffset;
+		}
+	
+	}
+		FinalColor.a=1.0f;
+		return FinalColor;
+}
+
+VS_OUT VS(VS_IN inData)
+{
+	VS_OUT vOut;
+	float4 vLocal = float4(inData.p,1.0f);
+	float4 vWorld = mul(vLocal, g_matWorld);
+	float4 vView = mul(vWorld, g_matView);
+	float4 vProj = mul(vView, g_matProj);
+	vOut.p = vProj;
+	vOut.n=inData.n;
+	vOut.c=inData.c;
+
+	vOut.t =inData.t;
+	vOut.v= vWorld;
+	//vOut.c=ComputePointLight(vOut.v,vOut.n);
+	vOut.time = cos(time.x)*0.5f + 0.5f;
+	return vOut;
+}
+
+
+Texture2D		g_txDiffuseA : register(t0);
+Texture2D		g_txDiffuseB : register(t1);
+SamplerState	g_Sample0 : register(s0);
+
+struct PS_IN
+{
+	float4 p : SV_POSITION;
+	float3 n : NORMAL;
+	float4 c : COLOR0;
+	float2 t : TEXCOORD0;
+	float time:TEXCOORD1;
+	float3 v: TEXCOORD2;
+};
+
+struct PS_OUT
+{
+	float4 c : SV_TARGET;
+};
+PS_OUT PS(PS_IN inData)
+{
+	PS_OUT vOut;
+	float4 vFinal = g_txDiffuseA.Sample(g_Sample0, inData.t);	
+	vOut.c =(ComputePointLight(inData.v,inData.n)+ComputeSpotLight(inData.v,inData.n))*vFinal;
+
+	vOut.c.a=1.0f;
+	return vOut;
+}

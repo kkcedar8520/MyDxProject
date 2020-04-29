@@ -1,0 +1,236 @@
+MFC 응용프로그램
+
+
+응용프로그램 종류
+
+단일 문서
+프로젝트 스타일: MFC STANDARD --> 비주얼스튜디오 사용! 
+
+고급기능:탐색기 도킹 x 아래두개 o
+
+
+
+사용자 인터페이스 기능
+
+클래식 메뉴: 메뉴바를 뗄수 없는것이 클래스-->선택
+
+리본:OFFICE
+
+메뉴모음 
+
+
+//MFC 프로그램 기본 시작루트
+인선스가 만들어지면 
+
+
+핵심 문서 3개 만들어져서
+
+윈도우가 띄워진다 
+
+
+기본 작업을 마치고 띄우면 
+
+단일뷰어 상태로 띄워진다.
+
+
+
+
+DX 코어와 연결 시켜야 하는데 
+
+방법은 해왔던 방법과 동일하다 헤더파일과 라이브러리를 링킹 해준다
+
+
+MFC에서는 윈도우가 이미 포함되어있기때문에 윈도우를 따로 만들어주지 않아도 된다
+
+그래서 윈도우를 불리시켜놔야한다.
+
+미리 만들어있는 윈도우에서 객체들만 넘겨받아서 사용한다.
+
+$(WindowsSDK_IncludePath)// 추가포함 디렉토리에 넣어줘야 오류가 뜨지않는다
+
+오류 이유는 dx 가 포함되어있지만 우리는 다른것을 써서 그런다
+
+DX 디바이스에 윈도우의 크기와 핸들이 필요하므로 넘겨준다.
+
+//(frame,view,doc)->> 이세개가 합쳐져서 ->application을 이룬다
+
+
+CMainFrame* pFrame=(CMainFrame*)AfxGetMainWnd()--> 메인 프레임을 가지고온다
+// 이안에 뷰어가 있다
+
+CGameToolView:public View;
+
+
+
+CGameToolView* pView=(CGameToolView*)pFrame->GetActiveView();
+
+m_hWnd=pView-> m_hwnd;
+
+
+MFC 는 결국엔 잘포장한 윈도우 API다 상위로 가면 다 API가 나온다
+
+CRET RT;:: 클라이언트 렉트
+
+rt=pView->GetClientRect(rt);
+
+m_rtClient=rt;//rt.width(),rt.height();
+
+
+MFC에 메세지 프로시저가 따로 있기 때문에 우리 코어에서의 메세지를 받아오는 부분은
+
+필요없다.
+
+ MFC는 윈도우 메세지마다 어떤 함수가 호출 될지 다 매핑되있다.
+
+
+게임툴 프로젝트  속성에 가서 재정의 목록을 보면 재정의함수 목록이 전부 뜬다
+
+
+메세지와 관련된 기능 또한 모두 찾아서 볼 수 있도록 되어있다.
+
+그것을 통해 어플리케이션의 함수를 재정의한다. 
+
+CGameAPP:Onldle 재정의
+
+Onidle에서 CoreFrame과 CoreRender를 돌릴것이다.
+
+
+BOOL Onldle()
+
+{
+ DXCORE::CoreFrame();
+ DXCORE::CoreRender():
+ return TRUE;
+
+}
+
+리사이즈 문제를 해결하기 위해선 
+
+view 클래스의 WM_SIZE메세지가 호출될때의 함수를 재정의한다
+
+
+OnSize()
+{
+
+CGameToolApp* pApp=(CGameToolApp* )AfxGetApp() 어플리케이션을 가지고온다
+
+pApp->ResizeDevice(cx,cy);
+
+}
+
+
+MFC 클래스 마법사에서 MFC 클래스를 추가한다
+
+Pane 윈도우 클래스를 추가하여 기능을 만든다
+
+기본클래스:부모가 CDockablePane을 부모르 설정한다
+
+
+메인프레임에 MapPane클래스를 붙여준다.
+
+
+MainFrame.Cpp Oncreate 함수안에  포함시켜준다
+
+
+m_wndMapCtrl// MapPane객체
+
+DWORD dwStlye=
+
+//생성
+
+m_wndMapCtrl.CreateEx();//파라미터: 확장 스타일 ,맵이름,this,d위치,TRUE,ID:1000,dwstyle):
+
+
+m_wndMapCtrl.EnableDocking(CBRS_ALIGN_ANY):
+DockPane(&m_wndMapCtrl);//도킹 
+
+
+TmapPane 에도 Onsize()함수를 재정의해줘서 리사이즈 작업을 해줘야한다.
+
+ONSIZE()
+
+{
+if(m_WndForm)
+{
+
+m_WndForm->SetWindowPos();; 윈도우 팬에 다이아로그를 붙어다니게 해준다
+
+
+}
+}
+
+
+MapPane에는  WM_Create메세지로가서 OnCreate() 함수 ,
+
+Oncreate()
+
+{
+
+m_wndForm=TmapForm::CretaeOne();
+
+}
+
+
+WM MOUSE OnMouseActivate()함수 또한 작업해준다
+
+ OnMouseActive()
+{
+예외적인 상황을 컨트롤 하기위한 코드들이 들어간다
+
+부모로부터 자식 데이터를 넘겨주는데 다이어 로그가 창에 붙어다니기 때문에 마우스의 정보 오류가
+날수 있기때문에 MapPane을 누른것이 아니라고 알려주는 코드들이다.
+}
+
+TmapPane에 TmapForm 을 붙여준다
+
+
+
+
+//TmapForm
+
+클래스 마법사-> TMapFrom 클래스 추가 클래스속성(MFC클래스)
+
+부모클래스(기본 클래스):CDialog를 상속시켜서 생성한다.
+
+
+
+CDialog--> CFormView로 바꿔줘야한다 (기본클래스 항목에 나오지않기 때문)
+
+TMapForm ()생성자를 기본생성자로 바꿔준다.
+
+
+
+IMPLEMENT_DYNAMIC(,이부분을 CFormView로  ) Rtti 
+생성자 함수 부분을 바꿔라 CFORMVIEW::IDD_TMAPFORM;
+
+
+
+BEGIN_MESSAGE_MAP(,CFormView로  )
+
+
+DIALOG 속성 시스템메뉴 타이틀바를 펄스로 바꿔준다 Style 또한 차일드로 바꿔준다
+
+
+
+MapForm 은 윈도우당 한번만 생성시키기 위해서
+
+스태틱 함수를 하나 선언해준다
+
+static TmapForm* CreateOne(CWnd* pParent)//싱클톤 개념과 유사
+
+
+TmapForm* CreateOne(CWnd* pParent) //자기자신을 생성
+{
+
+  TmapForm*pFrom =new TmapForm;
+	pForm->Create(NULL,NULL); 속성보고 넣을것
+ 	return pFrom;
+}
+
+
+
+
+
+
+
+

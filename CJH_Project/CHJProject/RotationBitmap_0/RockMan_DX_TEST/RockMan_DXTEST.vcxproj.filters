@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="JH_EffectMgr.cpp" />
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Bullet.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="JH_Map.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="JH_Player.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="GutsStandState.cpp">
+      <Filter>State</Filter>
+    </ClCompile>
+    <ClCompile Include="GutsActionState.cpp">
+      <Filter>State</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="JH_Srcreen.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="StartScreen.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="GutsManScreen.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterSlectScreen.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>State</Filter>
+    </ClCompile>
+    <ClCompile Include="GutsMan.cpp">
+      <Filter>State</Filter>
+    </ClCompile>
+    <ClCompile Include="JH_FiniteState.cpp">
+      <Filter>Fsm</Filter>
+    </ClCompile>
+    <ClCompile Include="JH_FSM.cpp">
+      <Filter>Fsm</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="JH_EffectMgr.h" />
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="Bullet.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="JH_Player.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="JH_Map.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="GutsStandState.h">
+      <Filter>State</Filter>
+    </ClInclude>
+    <ClInclude Include="GutsActionState.h">
+      <Filter>State</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h" />
+    <ClInclude Include="JH_Srcreen.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="StartScreen.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="GutsManScreen.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterSlectScreen.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>State</Filter>
+    </ClInclude>
+    <ClInclude Include="GutsMan.h">
+      <Filter>State</Filter>
+    </ClInclude>
+    <ClInclude Include="JH_FiniteState.h">
+      <Filter>Fsm</Filter>
+    </ClInclude>
+    <ClInclude Include="JH_FSM.h">
+      <Filter>Fsm</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="RockManShader.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Object">
+      <UniqueIdentifier>{d18ba3c0-7ed6-42e9-b0a9-5b2e6e432599}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fsm">
+      <UniqueIdentifier>{ef12bb0a-26d6-464f-b3b7-c2dd2251d0e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="State">
+      <UniqueIdentifier>{b4f92ce8-fd8c-4851-bc53-06ade17575a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map">
+      <UniqueIdentifier>{e59de886-0182-445c-9bbe-21b6a2c1d4d7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RockMan_DXTEST.rc" />
+  </ItemGroup>
+</Project>

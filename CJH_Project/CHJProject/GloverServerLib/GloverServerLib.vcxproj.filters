@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Acceptor.cpp" />
+    <ClCompile Include="JH_Character.cpp" />
+    <ClCompile Include="JH_IOCP.cpp" />
+    <ClCompile Include="JH_StreamPaket.cpp" />
+    <ClCompile Include="Lock.cpp" />
+    <ClCompile Include="Queue.cpp" />
+    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="SessionMgr.cpp" />
+    <ClCompile Include="ServerObj.cpp" />
+    <ClCompile Include="JH_Thread.cpp" />
+    <ClCompile Include="User.cpp" />
+    <ClCompile Include="WorkerThread.cpp" />
+    <ClCompile Include="PacketPool.cpp" />
+    <ClCompile Include="ServerCallFunc.cpp" />
+    <ClCompile Include="TMath.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Acceptor.h" />
+    <ClInclude Include="JH_Character.h" />
+    <ClInclude Include="JH_IOCP.h" />
+    <ClInclude Include="JH_ServerStd.h" />
+    <ClInclude Include="JH_StreamPaket.h" />
+    <ClInclude Include="Lock.h" />
+    <ClInclude Include="ObjectPool.h" />
+    <ClInclude Include="Protocol.h" />
+    <ClInclude Include="Queue.h" />
+    <ClInclude Include="Server.h" />
+    <ClInclude Include="SessionMgr.h" />
+    <ClInclude Include="ServerObj.h" />
+    <ClInclude Include="JH_Thread.h" />
+    <ClInclude Include="User.h" />
+    <ClInclude Include="WorkerThread.h" />
+    <ClInclude Include="PacketPool.h" />
+    <ClInclude Include="TMath.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="GS.txt" />
+    <Text Include="Text.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Character">
+      <UniqueIdentifier>{81d84570-51b0-4980-90d2-3bf8d9e1769d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

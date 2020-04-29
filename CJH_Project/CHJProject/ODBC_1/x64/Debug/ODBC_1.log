@@ -1,0 +1,6 @@
+﻿  ODBC_1.cpp
+d:\학습폴더\cjh_project\chjproject\odbc_1\odbc_1.cpp(15): warning C4838: 'double'에서 'TCHAR'(으)로의 변환에는 축소 변환이 필요합니다.
+d:\학습폴더\cjh_project\chjproject\odbc_1\odbc_1.cpp(15): warning C4244: '초기화 중': 'double'에서 'TCHAR'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\학습폴더\cjh_project\chjproject\odbc_1\odbc_1.cpp(66): warning C4101: 'cbOutCon' :참조되지 않은 지역 변수입니다.
+d:\학습폴더\cjh_project\chjproject\odbc_1\odbc_1.cpp(65): warning C4101: 'OutCon' :참조되지 않은 지역 변수입니다.
+  ODBC_1.vcxproj -> D:\학습폴더\CJH_Project\CHJProject\x64\Debug\ODBC_1.exe

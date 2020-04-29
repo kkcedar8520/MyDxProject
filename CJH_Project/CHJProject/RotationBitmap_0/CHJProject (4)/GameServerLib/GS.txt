@@ -1,0 +1,46 @@
+
+
+
+
+#pragma comment(lib,"ws2_32.lib")
+
+
+template<class T> class TSingleton
+{
+public:
+		static T& GetInstance()
+		{
+			static T innstance;
+		}
+}
+
+
+
+유저리스트와 유저이터레이터를 전역으로 빼 놓는다.
+
+
+
+// Rtti //Run time type information
+
+
+#define STRING(s) #s					//##스트링화 연산자
+#define ATTACHSTRING(i,g) i##g  // ##연결연산자 //새로운 변수명을 만들수있다
+
+ex) int ATTACHSTRIGN(m_i,ACADEMY) =7 ;
+std::cout<<m_iACADEMY <<std::endl;
+
+
+const type_info& tParent=typeid(parent);
+const type_info& tChild= typeid(child);
+
+결과
+
+class parent
+class child
+
+클래스 파생판단
+
+tParent.before(tChild)<<Std::endl; before()// 부모 클래스인지 묻는 함수
+					  <<		
+
+					  // 다양한 서버 형태의 유저를 동적할당하기 위해서  

@@ -1,0 +1,25 @@
+
+
+바로보내지않고 sendpool 추가만해준다
+
+클라이언트를 굳이 쓰레드를 사용하지않고 셀렉트를 써서해도되지만 fgets 함수로인해 쓰레드가 불가피하게 필요하다.
+
+
+rset에 RunClient() 세팅
+wset SendMessage세팅
+
+
+WSAWaitForMultipleEvents
+
+WSA_WAIT_EVENT_0 
+
+WSASELCTEVENT
+
+WSAEnumNetworkEvents
+
+WSANETWORKEVENTS-> 이벤트 확인 구조체 
+
+.lNetworkEvents& FD_READ -?> 확인 비트연산
+
+.IErrorcode 에러확인 멤버변수
+

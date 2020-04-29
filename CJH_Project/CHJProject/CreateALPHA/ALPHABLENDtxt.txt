@@ -1,0 +1,21 @@
+DDS 텍스쳐 압축포맷
+
+DX10 이상부턴
+
+BC형식으로 씀 압축정도에따라 1~5;
+
+
+알파테스팅
+discard 조건에 따라 그 픽셀부분을 제거
+
+소스의 알파값이 완전히 투명이거나 불투명일 때만 쓴다.
+
+
+컬링 모드를 쓸대에는
+시계방향으로 도는 면만 보이게된다.
+
+
+backBuffer와 동일하게 z buffer를 만들어야한다
+
+z 버퍼->버퍼생성->텍스쳐 생성(CreateTexture2d()->DepthStencilView
+D3D11_TEXTURE2D_DESC 

@@ -1,0 +1,121 @@
+
+
+// 시퀀스다이어그램 만들어놓기 // WebSequenceDiagrams ->account -> 구글계정+
+
+#pragma comment(lib,"ws2_32.lib")
+
+
+template<class T> class TSingleton
+{
+public:
+		static T& GetInstance()
+		{
+			static T innstance;
+		}
+}
+
+
+
+유저리스트와 유저이터레이터를 전역으로 빼 놓는다.
+
+
+
+// Rtti //Run time type information
+
+
+#define STRING(s) #s					//##스트링화 연산자
+#define ATTACHSTRING(i,g) i##g  // ##연결연산자 //새로운 변수명을 만들수있다
+
+ex) int ATTACHSTRIGN(m_i,ACADEMY) =7 ;
+std::cout<<m_iACADEMY <<std::endl;
+
+
+const type_info& tParent=typeid(parent);
+const type_info& tChild= typeid(child);
+
+결과
+
+class parent
+class child
+
+클래스 파생판단
+
+tParent.before(tChild)<<Std::endl; before()// 부모 클래스인지 묻는 함수
+					  <<		
+
+					  // 다양한 서버 형태의 유저를 동적할당하기 위해서  
+
+
+//
+Runtimeclass 동적클래스 생성
+
+정적인라이브를 다형성을 유지하여 동적으로 파생된클래스를 생성하기위해 쓴다.
+//
+
+//서버 쓰레드
+
+accepct 쓰레드
+Recv/send 쓰레드
+Worker 쓰레드
+
+//
+
+Class Acceptor:public JH_Thread//싱글톤으로 해도 됌
+
+Singleton에서 매크로말고는 생성 못하도록 생성자를 private로 묶는다.
+
+ServerClass 가 accept 클래스를 포함하는 구조
+
+
+Acceptor::Set(int iPort,const char* szAddress)
+
+쓰레드 클래스를 상속받아 런으로 돌린다.
+
+Server
+
+
+네트워크 게임에선 보통 대용량 게임에선 지연패킷을 많이쓴다..
+
+
+
+
+
+//소켓옵션
+서버 소켓을 끊엇다고 바로끊어지는것이 아니라 지연되다 끊어진다
+
+그때 같은지역번호와 ip를 쓰기위한ㅌ 하드웨어적 함수가 
+
+SO_REUSEADDR 이다
+\
+// 제로버퍼링 // 사용이유: 유저가 많을때 모두 리시브 버퍼를 걸어놓으면 버퍼용량이 부족하기때문에 받는 버퍼를 0으로 잡아놓는것
+
+//소켓옶션 Setsockopt()
+송수신 버퍼크기를 바꿀필요는 없지만 보통 2배로 잡아놓고 한다.
+
+REUSEADDR
+
+Linger
+
+linger time 값ㅇ ㅣ0일때와 아닐때로 구별된다
+
+
+//레이스컨디션
+
+여러 스레드가 동시에 같은 공유 메모리를 읽기/쓰기 할 때 발생한다.
+아토믹( ) 공유 자원을 간섭받지않고 독자적으로 쓰게하는것
+
+예) 아토믹하게 되지않은 경우 ::데드락 
+
+임계구역(critical section)을 상호배제하는것을 MUTEX
+
+데드 레커닝 //
+
+시시 각각 패킷을 보내면 패킷의 양이 너무많아지므로
+
+다른 이벤트가 발생 하지않앗을때는 예측하여 정보를 갱신하는것을 데드레커닝이라고한다 ( 이벤트성으로 패킷을 주고받음. )
+
+//Object Pool
+
+유저가 Recv 와 Send를 동시에 하면 overlapped 구조체가 하나로는 안되긴때문에 필요할 때 마다 할당 시켜주기위해서이다.
+
+하지만 쓸 때 마다 뉴 딜리트를 하면 자원소비가 심하기 때문에 미리 많은수를 할당 시켜놓기위해 오브젝트풀이 필요하다.

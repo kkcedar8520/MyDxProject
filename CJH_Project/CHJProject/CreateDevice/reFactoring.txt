@@ -1,0 +1,7 @@
+
+dx관련함수와 멤버들은Helper 클래스로
+
+오브젝트들은 Tmodel의 자식으로
+
+
+UpdateSubresource 함수 gpu에서 직접적으로 작업
