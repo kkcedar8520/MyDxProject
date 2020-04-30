@@ -201,10 +201,15 @@ PS_OUT PS(PS_IN inData)
 	
 	
 	float4 vFinalColor=vFinal*Diffuse(normal.xyz);
-	if(vAlpha.x>0)
-	vOut.c=vFinalColor;//*vTexture1;
+	vOut.c=vFinalColor;
+	
+
+	if(vAlpha.x>0.3)
+	{
+	vOut.c=vTexture1;//float4(0,vAlpha.x,0,0);//vFinalColor;vTexture1;
+	vOut.c.a=1.0;
+	}
 
 
-	vOut.c.a=1.0f;
 	return vOut;
 }

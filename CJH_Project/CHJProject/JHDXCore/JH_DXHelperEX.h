@@ -13,6 +13,20 @@ namespace DX
 		UINT iNumVertex,
 		UINT iVertexSize,
 		bool bDynamic=false);
+
+	ID3D11Buffer* CreateStructureBuffer(
+		ID3D11Device*  pd3dDevice,
+		void *pInitData,
+		UINT iCount,
+		UINT iDataSize);
+
+
+	ID3D11ShaderResourceView* CreateBufferSrv(
+		ID3D11Buffer* pBuffer,
+		ID3D11Device*  pd3dDevice);
+	ID3D11UnorderedAccessView* CreateBufferUAV(
+		ID3D11Buffer* pBuffer,
+		ID3D11Device*  pd3dDevice);
 }
 
 class JH_DXHelperEX

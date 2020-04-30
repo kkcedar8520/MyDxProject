@@ -220,4 +220,136 @@ namespace DX
 		return pBuffer;
 	}
 
+	ID3D11Buffer* CreateStructureBuffer(
+		ID3D11Device*  pd3dDevice,
+		void *pInitData,
+		UINT iCount,
+		UINT iDataSize
+		)
+	{
+		HRESULT hr = S_OK;
+		ID3D11Buffer* pBuffer = nullptr;
+		D3D11_BUFFER_DESC bd;
+		ZeroMemory(&bd, sizeof(bd));
+	
+		bd.ByteWidth = iDataSize * iCount;
+		bd.BindFlags = D3D11_BIND_UNORDERED_ACCESS| D3D11_BIND_SHADER_RESOURCE;
+		bd.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+		bd.StructureByteStride = iDataSize;
+
+		D3D11_SUBRESOURCE_DATA InitData;
+
+	
+		if (pInitData != nullptr)
+		{
+
+			ZeroMemory(&InitData, sizeof(InitData));
+			InitData.pSysMem = pInitData;
+
+			if (FAILED(hr = pd3dDevice->CreateBuffer(&bd, &InitData, &pBuffer)))
+			{
+				H(hr);
+				return nullptr;
+			}
+		}
+		else
+		{
+			if (FAILED(hr = pd3dDevice->CreateBuffer(&bd, NULL, &pBuffer)))
+			{
+				H(hr);
+				return nullptr;
+			}
+		}
+		return pBuffer;
+	}
+
+	ID3D11ShaderResourceView* CreateBufferSrv(
+		ID3D11Buffer* pBuffer,
+		ID3D11Device*  pd3dDevice)
+	{
+		HRESULT hr = S_OK;
+		ID3D11ShaderResourceView* pSrv;
+		
+		D3D11_BUFFER_DESC bd;
+		ZeroMemory(&bd, sizeof(bd));
+		pBuffer->GetDesc(&bd);
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+
+		ZeroMemory(&desc, sizeof(desc));
+		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+		desc.BufferEx.FirstElement = 0;
+
+		if (bd.MiscFlags&D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS)
+		{
+			desc.Format = DXGI_FORMAT_R32_TYPELESS;        
+			desc.BufferEx.Flags = D3D11_BUFFEREX_SRV_FLAG_RAW;        
+			desc.BufferEx.NumElements = bd.ByteWidth / 4;
+		}
+		if (bd.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
+		{ 
+			desc.Format = DXGI_FORMAT_UNKNOWN;         
+			desc.BufferEx.NumElements = bd.ByteWidth / bd.StructureByteStride;
+		}
+		else 
+		{ 
+			return nullptr; 
+		}
+	
+
+
+
+		if (FAILED(hr = pd3dDevice->CreateShaderResourceView(pBuffer, &desc, &pSrv)))
+		{
+			H(hr);
+			return nullptr;
+		}
+	
+		return pSrv;
+	}
+
+	ID3D11UnorderedAccessView* CreateBufferUAV(
+		ID3D11Buffer* pBuffer,
+		ID3D11Device*  pd3dDevice)
+	{
+		HRESULT hr = S_OK;
+		ID3D11UnorderedAccessView* pUAV;
+
+		D3D11_BUFFER_DESC bd;
+		ZeroMemory(&bd, sizeof(bd));
+		pBuffer->GetDesc(&bd);
+
+		D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
+
+		ZeroMemory(&desc, sizeof(desc));
+		desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+		desc.Buffer.FirstElement = 0;
+
+		if (bd.MiscFlags&D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS)
+		{
+			desc.Format = DXGI_FORMAT_R32_TYPELESS;
+			desc.Buffer.Flags = D3D11_BUFFEREX_SRV_FLAG_RAW;
+			desc.Buffer.NumElements = bd.ByteWidth / 4;
+		}
+		if (bd.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
+		{
+			desc.Format = DXGI_FORMAT_UNKNOWN;
+			desc.Buffer.NumElements = bd.ByteWidth / bd.StructureByteStride;
+		}
+		else
+		{
+			return nullptr;
+		}
+
+
+
+
+		if (FAILED(hr = pd3dDevice->CreateUnorderedAccessView(pBuffer, &desc, &pUAV)))
+		{
+			H(hr);
+			return nullptr;
+		}
+
+		return pUAV;
+	}
 }
