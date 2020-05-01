@@ -8,6 +8,32 @@
 
 
 #pragma warning( disable:4005 )
+HRESULT Sample::CreateComputeShaderResourceView()
+{
+	HRESULT hr = S_OK;
+
+	DX::CreateShaderResourceView(m_pd3dDevice,)
+	pSrcTexture
+
+	return hr;
+
+
+}
+void Sample::RunComputeShader(UINT nNumViews, ID3D11ShaderResourceView* pShaderResourceView,
+	ID3D11UnorderedAccessView* pUnorderedAccessView ,UINT X, UINT Y, UINT Z )
+{
+	
+	ID3D11ShaderResourceView* aRViews[2] = { pShaderResourceView , m_Map->m_dxHelper.m_pSRV };
+	m_pImmediateContext->CSSetShader(m_pCS.Get(), NULL, 0);
+	m_pImmediateContext->CSSetShaderResources(0, nNumViews,aRViews);
+	m_pImmediateContext->CSSetUnorderedAccessViews(0, 1,&pUnorderedAccessView, NULL);
+
+	m_pImmediateContext->Dispatch(X, Y, Z);
+
+	m_pImmediateContext->CSSetShader(NULL, NULL, 0);
+
+	
+}
 HRESULT	Sample::CreateSplattingTexture()
 {
 	HRESULT hr;
@@ -41,63 +67,63 @@ HRESULT	Sample::CreateSplattingTexture()
 		return hr;
 	}
 }
-HRESULT Sample::MapSplatting(SPHERE Sphere)
-{
-
-	
-
-	
-	HRESULT hr=S_OK;
-
-
-	D3D11_MAPPED_SUBRESOURCE MapSrc;
-	
-	static int i = 0;
-	if (SUCCEEDED(m_pImmediateContext->Map((ID3D11Resource*)pDestTexture.Get(), NULL, D3D11_MAP_READ_WRITE, NULL, &MapSrc)))
-	{
-
-		UCHAR* pTexcell = (UCHAR*)MapSrc.pData;
-		for (int iRow = 0; iRow < m_Map->m_iRowNum; iRow++)
-		{
-			int irowStart = MapSrc.RowPitch*iRow;
-			for (int iCol = 0; iCol < m_Map->m_iColumNum; iCol++)
-			{
-				float fDistance = sqrt((Sphere.vCenter.x - iCol)*(Sphere.vCenter.x - iCol) +
-					(Sphere.vCenter.z - iRow)*(Sphere.vCenter.z - iRow));
-				if (fDistance <= Sphere.Radius)
-				{
-					pTexcell[irowStart + iCol * 4]=254.0f;
-					//pTexcell[i++] = 254.0f;
-				}
-
-				
-			}
-
-		}
-	
-		m_pImmediateContext->Unmap((ID3D11Resource*)pDestTexture.Get(), D3D11CalcSubresource(0, 0, 1));
-
-	}
-
-
-
-	
-	
-	m_pImmediateContext->CopyResource((ID3D11Resource*)pSrcTexture.Get(),(ID3D11Resource*)pDestTexture.Get());
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC svd;
-	ZeroMemory(&svd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-	svd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	svd.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
-	svd.Texture2D.MipLevels = 1;
-	svd.Texture2D.MostDetailedMip = 0;
-
-
-	m_pSplSrv.Reset();
-	m_pd3dDevice->CreateShaderResourceView((ID3D11Resource*)pSrcTexture.Get(), &svd, m_pSplSrv.GetAddressOf());
-	m_pImmediateContext->PSSetShaderResources(2, 1, m_pSplSrv.GetAddressOf());
-	return hr;
-}
+//HRESULT Sample::MapSplatting(SPHERE Sphere)
+//{
+//
+//	
+//
+//	
+//	//HRESULT hr=S_OK;
+//
+//
+//	//D3D11_MAPPED_SUBRESOURCE MapSrc;
+//	//
+//	//static int i = 0;
+//	//if (SUCCEEDED(m_pImmediateContext->Map((ID3D11Resource*)pDestTexture.Get(), NULL, D3D11_MAP_READ_WRITE, NULL, &MapSrc)))
+//	//{
+//
+//	//	UCHAR* pTexcell = (UCHAR*)MapSrc.pData;
+//	//	for (int iRow = 0; iRow < m_Map->m_iRowNum; iRow++)
+//	//	{
+//	//		int irowStart = MapSrc.RowPitch*iRow;
+//	//		for (int iCol = 0; iCol < m_Map->m_iColumNum; iCol++)
+//	//		{
+//	//			float fDistance = sqrt((Sphere.vCenter.x - iCol)*(Sphere.vCenter.x - iCol) +
+//	//				(Sphere.vCenter.z - iRow)*(Sphere.vCenter.z - iRow));
+//	//			if (fDistance <= Sphere.Radius)
+//	//			{
+//	//				pTexcell[irowStart + iCol * 4]=254.0f;
+//	//				//pTexcell[i++] = 254.0f;
+//	//			}
+//
+//	//			
+//	//		}
+//
+//	//	}
+//	//
+//	//	m_pImmediateContext->Unmap((ID3D11Resource*)pDestTexture.Get(), D3D11CalcSubresource(0, 0, 1));
+//
+//	//}
+//
+//
+//
+//	//
+//	//
+//	//m_pImmediateContext->CopyResource((ID3D11Resource*)pSrcTexture.Get(),(ID3D11Resource*)pDestTexture.Get());
+//
+//	//D3D11_SHADER_RESOURCE_VIEW_DESC svd;
+//	//ZeroMemory(&svd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+//	//svd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+//	//svd.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
+//	//svd.Texture2D.MipLevels = 1;
+//	//svd.Texture2D.MostDetailedMip = 0;
+//
+//
+//	//m_pSplSrv.Reset();
+//	//m_pd3dDevice->CreateShaderResourceView((ID3D11Resource*)pSrcTexture.Get(), &svd, m_pSplSrv.GetAddressOf());
+//	//m_pImmediateContext->PSSetShaderResources(2, 1, m_pSplSrv.GetAddressOf());
+//	//return hr;
+//}
 void Sample::GetNearPoint()
 {
 	D3DXVECTOR3 v0, v1, v2, vIntersection;
@@ -255,11 +281,32 @@ bool Sample::Init()
 	int iNumTex = I_Texture.Add(m_pd3dDevice.Get(), L"../../data/map/Tile20.jpg");
 	m_pTexture = I_Texture.GetPtr(iNumTex);
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC sd;
+	m_pTexture->m_pTextureRV->GetDesc(&sd);
+
+	
 	m_pBox = make_shared<JHShapeBox>();
 	m_pBox->Create(m_pd3dDevice.Get(), m_pImmediateContext.Get(),
 		L"../../data/Shader/LightShader.txt", L"../../data/Resource/powerbattles_BG.gif");
 	
+	//ComPuteShader
+	m_pCS.Attach(DX::CreateComputeShader(m_pd3dDevice.Get(), L"ComputeShader.HLSL","CSMAIN"));
+
+	m_vBuf0[0].fRadius = 100.0f;
+	m_vBuf0[0].iIndex = 2;
 	
+	m_vBuf0[0].vRect[0] = D3DXVECTOR3(-100, 0, 100);
+	m_vBuf0[0].vRect[1] = D3DXVECTOR3(100, 0, 100);
+	m_vBuf0[0].vRect[2] = D3DXVECTOR3(100, 0, -100);
+	m_vBuf0[0].vRect[3] = D3DXVECTOR3(-100, 0, -100);
+
+	m_pStructureBF.Attach(DX::CreateStructureBuffer(m_pd3dDevice.Get(), &m_vBuf0[0], 1, sizeof(BufType)));
+	m_pBufSrv.Attach(DX::CreateBufferSrv(m_pd3dDevice.Get(), m_pStructureBF.Get()));
+	
+	m_pUAV.Attach(DX::CreateBufferUAV(m_pStructureBF.Get(), m_pd3dDevice.Get()));
+	
+
+
 	
 	m_vp.Width = 150;
 	m_vp.Height = 150;
@@ -302,21 +349,9 @@ bool Sample::Frame()
 {
 	if (m_Map == nullptr)return true;
 
-	//if (bAttach&&m_CurrentObj)
-	//{
-	//	D3DXMatrixIdentity(&m_CurrentObj->m_matWorld);
-	//	
-
-	//	m_CurrentObj->m_matWorld._11 = 0.1;
-	//	m_CurrentObj->m_matWorld._22 = 0.1;
-	//	m_CurrentObj->m_matWorld._33 = 0.1;
-
-	//	m_CurrentObj->m_matWorld._41 = I_Select.m_Ray.vPoint.x;
-	//	m_CurrentObj->m_matWorld._42 = I_Select.m_Ray.vPoint.y;
-	//	m_CurrentObj->m_matWorld._43 = I_Select.m_Ray.vPoint.z;
-	//	bAttach = false;
-	//}
 	 //test/adsfadsf
+	RunComputeShader(2, m_pBufSrv.Get(), m_pUAV.Get(), 17, 17, 1);
+
 	D3DXVECTOR3 v0, v1, v2, vIntersection;
 	I_LIGHT_MGR.Frame();
 	I_LIGHT_MGR.m_cbLight.vEyeDir = { m_pMainCamera->m_vLookup,30 };
@@ -337,28 +372,30 @@ bool Sample::Frame()
 	}
 	
 	
-		if (bSplatting)
-		{
-			if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
-			{
-				GetNearPoint();
-				SPHERE sphere;
-				D3DXVECTOR3 vPoint = D3DXVECTOR3(m_NearPoint.x + ((m_Map->m_iRowNum-1) / 2.0f),
-					0, -(m_NearPoint.z) + ((m_Map->m_iColumNum-1)/ 2.0f));
-				sphere.vCenter = vPoint;
-				sphere.Radius = 2;
-				MapSplatting(sphere);
+		//if (bSplatting)
+		//{
+		//	if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
+		//	{
+		//		GetNearPoint();
+		//		m_vBuf0[0].vPickPos = m_NearPoint;
+		//		SPHERE sphere;
+		//		D3DXVECTOR3 vPoint = D3DXVECTOR3(m_NearPoint.x + ((m_Map->m_iRowNum-1) / 2.0f),
+		//			0, -(m_NearPoint.z) + ((m_Map->m_iColumNum-1)/ 2.0f));
+		//		sphere.vCenter = vPoint;
+		//		sphere.Radius = 2;
+		//		MapSplatting(sphere);
 
-				m_pImmediateContext->PSSetShaderResources(3, 1, &m_pTexture->m_pTextureRV);
-			}
-		}
+		//		m_pImmediateContext->PSSetShaderResources(3, 1, &m_pTexture->m_pTextureRV);
+		//	}
+		//}
 
 	
 	m_QuadTree->Frame();
+	
 
 
 	JH_DebugCamera* DebugCamera = (JH_DebugCamera*)m_pMainCamera;
-	/*DebugCamera->UpdateCameraHeight(m_Map.GetHeight(m_pMainCamera->m_vPos.x, m_pMainCamera->m_vPos.z) + 10);*/
+	
 
 	m_RenderTarget.Begin(m_pImmediateContext.Get(), D3DXVECTOR4(1, 1, 1, 1));
 	if (m_Map != nullptr)
@@ -367,7 +404,7 @@ bool Sample::Frame()
 		m_Map->SetMatrix(nullptr,
 			&m_matTopView,
 			&m_matTopProj);
-		//m_Map->Render();
+
 		m_QuadTree->Render();
 	}
 	m_RenderTarget.End(m_pImmediateContext.Get());
@@ -396,11 +433,6 @@ bool Sample::Render()
 		m_Map->m_dxHelper.m_pContext->IASetVertexBuffers(1, 1, &m_Map->m_pTangentVB,&stride,&offset);
 		m_Map->m_dxHelper.m_pContext->PSSetConstantBuffers(1, 1, pBuffers);
 		
-		//for (int i = 0; i < g_iLightNum; i++)
-		//{
-		//	I_LIGHT_MGR.m_LightObjList[i].SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
-		//	I_LIGHT_MGR.m_LightObjList[i].Render();
-		//}
 
 		
 		m_QuadTree->Render();
@@ -437,19 +469,18 @@ bool Sample::Render()
 	}
 	m_pImmediateContext->RSSetViewports(1, &m_ViewPort);
 
-	//m_DebugLine->SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
-	//m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(100, 0, 0), D3DXVECTOR4(1, 0, 0, 1));
-	//m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 100, 0), D3DXVECTOR4(0, 1, 0, 1));
-	//m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 0, 100), D3DXVECTOR4(0, 0, 1, 1));
+	m_DebugLine->SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
+	m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(100, 0, 0), D3DXVECTOR4(1, 0, 0, 1));
+	m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 100, 0), D3DXVECTOR4(0, 1, 0, 1));
+	m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 0, 100), D3DXVECTOR4(0, 0, 1, 1));
 
 
-	//m_pImmediateContext->UpdateSubresource(m_pLightConstantBuffer.Get(), 0, nullptr, &m_cbLight, 0, 0);*/
 
 
 	
-	//m_Map.m_dxHelper.m_pContext->PSSetConstantBuffers(2, 1, m_pLightConstantBuffer->GetAddressOf());
+
 	
-//	m_QuadTree->DrawNodeLine(m_QuadTree->m_pRootNode);
+	//m_QuadTree->DrawNodeLine(m_QuadTree->m_pRootNode);
 	
 
 

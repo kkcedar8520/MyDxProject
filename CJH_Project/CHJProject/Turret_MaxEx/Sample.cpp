@@ -4,7 +4,7 @@
 bool Sample::Init()
 {
 
-	m_MaxBox.Load(m_pd3dDevice, m_pImmediateContext, L"../../data/Obj/Turret.CjH");
+	m_MaxBox.Load(m_pd3dDevice.Get(), m_pImmediateContext.Get(), L"../../data/Obj/Turret.CjH");
 
 	m_pMainCamera->CreateViewMatrix(D3DXVECTOR3(0, 0, -20.0f), D3DXVECTOR3(0, 0, 0));
 	m_pMainCamera->UpdateBasisVector();
@@ -13,7 +13,7 @@ bool Sample::Init()
 	float fAspect = (float)g_rtClient.right / g_rtClient.bottom;
 	m_pMainCamera->CreateProjMatrix(0.1F, 1000.0F, D3DX_PI*0.4F, fAspect);
 
-	JDX::ApplySS(m_pImmediateContext, JDX::JH_DxState::g_pSamplerState);
+	JDX::ApplySS(m_pImmediateContext.Get(), JDX::JH_DxState::g_pSamplerState);
 
 
 

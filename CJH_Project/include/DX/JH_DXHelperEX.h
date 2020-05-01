@@ -6,13 +6,30 @@ namespace DX
 	ID3D11Buffer* MakeConstantBuffer(ID3D11Device* m_pDevice, void* Data, int iSize, int Num, bool bDynamic=false);
 	ID3D11Buffer* CreateIndexBuffer(ID3D11Device*  pd3dDevice, void *indices, UINT iNumIndex,
 		UINT iSize, bool bDynamic = false);
-	ID3D11ShaderResourceView*	CreateShaderResourceView(ID3D11Device* pDevice, const TCHAR* strFilePath);
+	ID3D11ShaderResourceView*	CreateShaderResourceViewFromFile(ID3D11Device* pDevice, const TCHAR* strFilePath);
+	ID3D11ShaderResourceView*	CreateShaderResourceView(ID3D11Device* pDevice, ID3D11Texture2D* pTexture);
 	ID3D11Buffer* CreateVertexBuffer(
 		ID3D11Device*  pd3dDevice,
 		void *vertices,
 		UINT iNumVertex,
 		UINT iVertexSize,
 		bool bDynamic=false);
+
+	ID3D11Buffer* CreateStructureBuffer(
+		ID3D11Device*  pd3dDevice,
+		void *pInitData,
+		UINT iCount,
+		UINT iDataSize);
+
+	ID3D11ShaderResourceView* CreateBufferSrv(
+		ID3D11Device*  pd3dDevice,
+		ID3D11Buffer* pBuffer
+	);
+	ID3D11UnorderedAccessView* CreateBufferUAV(
+		ID3D11Buffer* pBuffer,
+		ID3D11Device*  pd3dDevice);
+
+	ID3D11ComputeShader* CreateComputeShader(ID3D11Device* pDevice, LPCWSTR pSrcFile, const CHAR* pFunctionName);
 }
 
 class JH_DXHelperEX

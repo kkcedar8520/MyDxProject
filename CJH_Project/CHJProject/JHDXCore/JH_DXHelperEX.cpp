@@ -161,7 +161,7 @@ namespace DX
 		}
 		return pBuffer;
 	}
-	ID3D11ShaderResourceView*	CreateShaderResourceView(ID3D11Device* pDevice, const TCHAR* strFilePath)
+	ID3D11ShaderResourceView*	CreateShaderResourceViewFromFile(ID3D11Device* pDevice, const TCHAR* strFilePath)
 	{
 		HRESULT hr = S_OK;
 		if (strFilePath == NULL) return nullptr;
@@ -264,8 +264,9 @@ namespace DX
 	}
 
 	ID3D11ShaderResourceView* CreateBufferSrv(
-		ID3D11Buffer* pBuffer,
-		ID3D11Device*  pd3dDevice)
+		ID3D11Device*  pd3dDevice,
+		ID3D11Buffer* pBuffer
+)
 	{
 		HRESULT hr = S_OK;
 		ID3D11ShaderResourceView* pSrv;
@@ -351,5 +352,71 @@ namespace DX
 		}
 
 		return pUAV;
+	}
+
+	ID3D11ComputeShader* CreateComputeShader(ID3D11Device* pDevice, LPCWSTR pSrcFile, const CHAR* pFunctionName)
+	{
+		HRESULT hr;
+
+
+		DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+#if defined( DEBUG ) || defined( _DEBUG ) 
+		dwShaderFlags |= D3DCOMPILE_DEBUG;
+#endif
+
+		const D3D_SHADER_MACRO defines[] =
+		{
+	#ifdef USE_STRUCTURED_BUFFERS
+			"USE_STRUCTURED_BUFFERS", "1",
+	#endif
+			NULL, NULL
+		};
+
+		ID3D11ComputeShader* pCS = nullptr;
+		// We generally prefer to use the higher CS shader profile when possible as CS 5.0 is better performance on 11-class hardware
+		LPCSTR pProfile = (pDevice->GetFeatureLevel() >= D3D_FEATURE_LEVEL_11_0) ? "cs_5_0" : "cs_4_0";
+
+		ID3DBlob* pErrorBlob = NULL;
+		ID3DBlob* pBlob = NULL;
+		hr = D3DX11CompileFromFile(pSrcFile, defines, NULL, pFunctionName, pProfile,
+			dwShaderFlags, NULL, NULL, &pBlob, &pErrorBlob, NULL);
+		if (FAILED(hr))
+		{
+			if (pErrorBlob)
+				OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
+
+			SAFE_RELEASE(pErrorBlob);
+			SAFE_RELEASE(pBlob);
+
+			return false;
+		}
+
+		hr = pDevice->CreateComputeShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL,&pCS);
+
+		SAFE_RELEASE(pErrorBlob);
+		SAFE_RELEASE(pBlob);
+		return pCS;
+
+	}
+
+	ID3D11ShaderResourceView*	CreateShaderResourceView(ID3D11Device* pDevice,ID3D11Texture2D* pTexture,const TCHAR* strFilePath)
+	{
+		HRESULT hr = S_OK;
+
+		ID3D11ShaderResourceView* pSrv = nullptr;
+			D3D11_SHADER_RESOURCE_VIEW_DESC svd;
+			ZeroMemory(&svd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+			svd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			svd.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
+			svd.Texture2D.MipLevels = 1;
+			svd.Texture2D.MostDetailedMip = 0;
+		if (strFilePath == NULL) return nullptr;
+		ID3D11ShaderResourceView* pSRV = nullptr;
+		if (FAILED(hr = pDevice->CreateShaderResourceView(pTexture, &svd,&pSrv)))
+		{
+			H(hr);
+			return nullptr;
+		}
+		return pSRV;
 	}
 }

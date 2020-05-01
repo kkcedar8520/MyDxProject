@@ -9,13 +9,13 @@ HRESULT		Texture::Load(ID3D11Device* pDevice,
 	_stprintf_s(szFileName, _T("%s%s"), m_szPath.c_str(), strFilePath);
 	m_szName = strFilePath;
 
-	D3DX11_IMAGE_LOAD_INFO loadInfo;
-	ZeroMemory(&loadInfo, sizeof(D3DX11_IMAGE_LOAD_INFO));
-	loadInfo.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	loadInfo.Format = DXGI_FORMAT_FROM_FILE;//DXGI_FORMAT_BC1_UNORM;
+	
+	ZeroMemory(&m_LoadInfo, sizeof(D3DX11_IMAGE_LOAD_INFO));
+	m_LoadInfo.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	m_LoadInfo.Format = DXGI_FORMAT_FROM_FILE;//DXGI_FORMAT_BC1_UNORM;
 
 											// Load the Texture
-	hr = D3DX11CreateShaderResourceViewFromFile(pDevice, szFileName, &loadInfo, NULL, &m_pTextureRV, NULL);
+	hr = D3DX11CreateShaderResourceViewFromFile(pDevice, szFileName, &m_LoadInfo, NULL, &m_pTextureRV, NULL);
 	if (FAILED(hr))
 	{
 		//ErrorQuit(szFileName);
@@ -37,8 +37,12 @@ bool Texture::Apply(ID3D11DeviceContext*    pImmediateContext)
 
 bool Texture::Release()
 {
-	SAFE_RELEASE(m_pTextureRV);
-	SAFE_RELEASE(m_pSamplerState);
+	if (m_pTextureRV)
+	{
+		SAFE_RELEASE(m_pTextureRV);
+		SAFE_RELEASE(m_pSamplerState);
+	}
+
 	return true;
 }
 Texture::Texture(void)

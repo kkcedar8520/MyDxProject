@@ -4,6 +4,7 @@
 class Texture
 {
 public:
+	
 	T_STR		m_szName;
 	T_STR		m_szPath;
 	//--------------------------------------------------------------------------------------
@@ -12,6 +13,7 @@ public:
 	ID3D11ShaderResourceView*	m_pTextureRV;
 	ID3D11SamplerState*			m_pSamplerState;
 	D3D11_SAMPLER_DESC			m_SampleDesc;
+	D3DX11_IMAGE_LOAD_INFO m_LoadInfo;
 public:
 	HRESULT						Load(ID3D11Device* pDevice, const TCHAR* strFilePath);
 	bool						Apply(ID3D11DeviceContext*    pImmediateContext);

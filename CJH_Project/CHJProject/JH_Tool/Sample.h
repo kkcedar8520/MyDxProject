@@ -8,8 +8,30 @@
 #include"JHShapeBox.h"
 #include"MaxObj.h"
 #include"TextureMgr.h"
+struct BufType
+{
+	D3DXVECTOR3 vPickPos;
+	D3DXVECTOR3 vRect[4];
+	float  fRadius;
+	int    iIndex;
+};
 class Sample :public JHDXCore
 {
+public:
+	//Texture Splatting
+	ComPtr<ID3D11Texture2D> m_SplattingTex;
+	ComPtr<ID3D11ShaderResourceView>	m_pSplSrv;
+	Texture*							m_pTexture;
+	ComPtr<ID3D11Texture2D> pDestTexture;
+	ComPtr<ID3D11Texture2D> pSrcTexture;
+	//ComputeShader Splatting
+	ComPtr<ID3D11Buffer>				m_pStructureBF;
+	ComPtr<ID3D11ShaderResourceView>	m_pBufSrv;
+	ComPtr<ID3D11UnorderedAccessView>	m_pUAV;
+	ComPtr<ID3D11ComputeShader>			m_pCS;
+	BufType								m_vBuf0[1];
+	
+	
 public:
 	JH_ShapePlane			m_MiniMap;
 	D3DXMATRIX				m_matTopView;
@@ -17,11 +39,6 @@ public:
 	D3DXVECTOR3				m_NearPoint;
 	RenderTarget			m_RenderTarget;
 
-	ComPtr<ID3D11Texture2D> m_SplattingTex;
-	ComPtr<ID3D11ShaderResourceView>	m_pSplSrv;
-	Texture*							m_pTexture;
-	ComPtr<ID3D11Texture2D> pDestTexture;
-	ComPtr<ID3D11Texture2D> pSrcTexture;
 
 	shared_ptr<JHShapeBox>	m_pBox;
 
@@ -48,14 +65,19 @@ public:
 		const TCHAR* pNormalMapFileName=nullptr);
 	int CreateObj(const TCHAR* pFileName,D3DXMATRIX& m_matWorld);
 	void MapUpDown(SPHERE Sphere);
+	//
 	HRESULT MapSplatting(SPHERE Sphere);
+	HRESULT CreateComputeShaderResourceView();
 	HRESULT	CreateSplattingTexture();
 	void GetNearPoint();
-
+	void RunComputeShader(UINT nNumViews, ID3D11ShaderResourceView* pShaderResourceView,
+		ID3D11UnorderedAccessView* pUnorderedAccessView, UINT X, UINT Y, UINT Z);
+	//OVERRIDE
 	bool Init();
 	bool Frame();
 	bool Render();
 	bool Release();
+public:
 	Sample();
 	virtual ~Sample();
 };

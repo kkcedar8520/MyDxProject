@@ -21,7 +21,7 @@ bool Sample::Init()
 	m_MaxBone.Load(m_pd3dDevice.Get(), m_pImmediateContext.Get(), L"../../data/Character/man.act");
 
 	m_DebigLine.Create(m_pd3dDevice.Get(), m_pImmediateContext.Get(), L"../../data/Shader/ColorBlend.txt", nullptr,"VSLine","PSLine");
-	m_pMainCamera->CreateViewMatrix(D3DXVECTOR3(0, 0, -20.0f), D3DXVECTOR3(0, 0, 0));
+	m_pMainCamera->CreateViewMatrix(D3DXVECTOR3(0, 0, -200.0f), D3DXVECTOR3(0, 0, 0));
 	m_pMainCamera->UpdateBasisVector();
 
 

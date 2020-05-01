@@ -244,7 +244,7 @@ BOOL CJHToolApp::OnIdle(LONG lCount)
 
 	m_Sample.CoreFrame();
 	m_Sample.CoreRender();
-	return CWinAppEx::OnIdle(lCount);
+	return true;
 }
 
 

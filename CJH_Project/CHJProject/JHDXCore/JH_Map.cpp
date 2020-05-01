@@ -438,7 +438,7 @@ HRESULT JH_Map::CreateInputLayout()
 HRESULT	JH_Map::LoadTexture(const TCHAR* pszTexFileName)
 {
 	HRESULT hr = S_OK;
-	if (m_dxHelper.m_pSRV = DX::CreateShaderResourceView(m_dxHelper.m_pd3dDevice, pszTexFileName))
+	if (m_dxHelper.m_pSRV = DX::CreateShaderResourceViewFromFile(m_dxHelper.m_pd3dDevice, pszTexFileName))
 	
 	m_iTexNum=I_Texture.Add(m_dxHelper.m_pd3dDevice, m_pNormMapFileName);
 	m_pTexture = I_Texture.GetPtr(m_iTexNum);
