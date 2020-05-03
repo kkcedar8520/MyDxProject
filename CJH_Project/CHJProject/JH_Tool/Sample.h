@@ -20,13 +20,17 @@ class Sample :public JHDXCore
 public:
 	//Texture Splatting
 	ComPtr<ID3D11Texture2D> m_SplattingTex;
+	ComPtr<ID3D11ShaderResourceView>	m_pDestSrv;
 	ComPtr<ID3D11ShaderResourceView>	m_pSplSrv;
 	Texture*							m_pTexture;
 	ComPtr<ID3D11Texture2D> pDestTexture;
 	ComPtr<ID3D11Texture2D> pSrcTexture;
 	//ComputeShader Splatting
+	ComPtr<ID3D11Texture2D> pUAVTexture;
+
 	ComPtr<ID3D11Buffer>				m_pStructureBF;
 	ComPtr<ID3D11ShaderResourceView>	m_pBufSrv;
+	ComPtr<ID3D11ShaderResourceView>	m_pReadSrv;
 	ComPtr<ID3D11UnorderedAccessView>	m_pUAV;
 	ComPtr<ID3D11ComputeShader>			m_pCS;
 	BufType								m_vBuf0[1];
@@ -67,10 +71,10 @@ public:
 	void MapUpDown(SPHERE Sphere);
 	//
 	HRESULT MapSplatting(SPHERE Sphere);
-	HRESULT CreateComputeShaderResourceView();
+	HRESULT CreateCSTexture();
 	HRESULT	CreateSplattingTexture();
 	void GetNearPoint();
-	void RunComputeShader(UINT nNumViews, ID3D11ShaderResourceView* pShaderResourceView,
+	void RunComputeShaderSplatting(UINT nNumViews, ID3D11ShaderResourceView** pShaderResourceView,
 		ID3D11UnorderedAccessView* pUnorderedAccessView, UINT X, UINT Y, UINT Z);
 	//OVERRIDE
 	bool Init();

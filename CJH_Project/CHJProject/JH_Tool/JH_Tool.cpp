@@ -189,6 +189,10 @@ public:
 	afx_msg void OnBnClickedOk2();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedOk5();
+	afx_msg void OnSplattTextur2BnClickedOk();
+	afx_msg void OnSplattTexture3BnClickedOk();
+	afx_msg void OnSplattTexture4BnClickedOk();
+	afx_msg void OnSplattTextur4BnClickedOk();
 };
 
 CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX)
@@ -201,6 +205,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+
 
 
 
@@ -246,6 +251,9 @@ BOOL CJHToolApp::OnIdle(LONG lCount)
 	m_Sample.CoreRender();
 	return true;
 }
+
+
+
 
 
 

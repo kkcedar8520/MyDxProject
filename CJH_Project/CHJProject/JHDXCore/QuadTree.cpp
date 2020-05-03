@@ -33,9 +33,9 @@ bool HQuadTree::FindInterSection()
 				if (I_Select.InterSectionTriAngle(v0, v1, v2));
 				{
 					vIntersection = I_Select.m_vIntersection;
-			
 
-	
+
+
 
 					if (m_pMap->m_bMapEdit)
 					{
@@ -75,7 +75,7 @@ bool HQuadTree::FindInterSection()
 
 void HQuadTree::Set()
 {
-	m_BoxLine= make_shared<JH_ShapeLine>();
+	m_BoxLine = make_shared<JH_ShapeLine>();
 
 	m_BoxLine->Create(m_pMap->m_dxHelper.m_pd3dDevice,
 		m_pMap->m_dxHelper.m_pContext,
@@ -86,7 +86,7 @@ void HQuadTree::CreateBB(HNode* pNode)
 {
 
 
-	
+
 	DWORD dwTL = pNode->m_dwCorner[0];
 	DWORD dwTR = pNode->m_dwCorner[1];
 	DWORD dwBL = pNode->m_dwCorner[2];
@@ -133,7 +133,7 @@ void HQuadTree::CreateBB(HNode* pNode)
 	pNode->m_Box.fExtent[1] = pNode->m_Box.vMax.y - pNode->m_Box.vCenter.y;
 	pNode->m_Box.fExtent[2] = pNode->m_Box.vMax.z - pNode->m_Box.vCenter.z;
 
-	
+
 }
 HNode* HQuadTree::CreateNode(HNode* pParent, DWORD dwTL, DWORD dwTR, DWORD dwBL, DWORD dwBR)
 {
@@ -171,11 +171,11 @@ BOOL HQuadTree::Build(JH_Map* pMap, JHCamera* pCamera)
 
 	Set();
 	DWORD dwTL = 0;
-	DWORD dwTR = m_pMap->m_iColumNum-1;
+	DWORD dwTR = m_pMap->m_iColumNum - 1;
 	DWORD dwBL = m_pMap->m_iColumNum*(m_pMap->m_iRowNum - 1);
 	DWORD dwBR = m_pMap->m_iColumNum*m_pMap->m_iRowNum - 1;
-	m_pRootNode=CreateNode(nullptr, dwTL, dwTR, dwBL, dwBR);
-	 
+	m_pRootNode = CreateNode(nullptr, dwTL, dwTR, dwBL, dwBR);
+
 	BuildTree(m_pRootNode);
 
 
@@ -195,16 +195,16 @@ BOOL HQuadTree::BuildTree(HNode* pNode)
 BOOL HQuadTree::DivideNode(HNode*pNode)
 {
 	//dwTL		c0			dwTR
-	
 
-	
+
+
 
 	//c1		c2			c3
 
 
 
 	//dwBL		c4			dwBR
-	if (pNode->m_dwDepth<3)
+	if (pNode->m_dwDepth < 3)
 	{
 		DWORD dwTL = pNode->m_dwCorner[0];
 		DWORD dwTR = pNode->m_dwCorner[1];
@@ -220,8 +220,8 @@ BOOL HQuadTree::DivideNode(HNode*pNode)
 		pNode->m_pChild[0] = CreateNode(pNode, dwTL, c0, c1, c2);
 		pNode->m_pChild[1] = CreateNode(pNode, c0, dwTR, c2, c3);
 		pNode->m_pChild[2] = CreateNode(pNode, c1, c2, dwBL, c4);
-		pNode->m_pChild[3] = CreateNode(pNode, c2, c3,c4, dwBR);
-		
+		pNode->m_pChild[3] = CreateNode(pNode, c2, c3, c4, dwBR);
+
 		return TRUE;
 	}
 	else
@@ -232,15 +232,15 @@ BOOL HQuadTree::DivideNode(HNode*pNode)
 
 
 	return FALSE;
-	
+
 }
 void HQuadTree::DirectSelect(HNode* pNode)
 {
-	
+
 }
 void HQuadTree::DrawNodeLine(HNode* pNode)
 {
-	if (pNode == nullptr) { return ; }
+	if (pNode == nullptr) { return; }
 
 	if (pNode->m_isLeaf == TRUE)
 	{
@@ -253,7 +253,7 @@ void HQuadTree::DrawNodeLine(HNode* pNode)
 	}
 	for (int iNode = 0; iNode < 4; iNode++)
 	{
-		
+
 		DrawNodeLine(pNode->m_pChild[iNode]);
 	}
 
@@ -360,23 +360,38 @@ bool HQuadTree::Frame()
 }
 bool HQuadTree::Render()
 {
+
 	m_pMap->PreRender();
-	Draw(m_pRootNode, m_pMap->m_dxHelper.m_pContext);
+
+
+	for (int i=0; i<m_pMap->m_vTextureList.size();i++)
+	{
+		m_pMap->m_dxHelper.m_pContext->PSSetShaderResources(3+i,1,&m_pMap->m_vTextureList[i]->m_pTextureRV);
+	}
+
+
+	for (int iNode = 0; iNode < m_DrawNodeList.size(); iNode++)
+	{
+		HNode* pNode = m_DrawNodeList[iNode];
+		m_pMap->m_dxHelper.m_pContext->IASetIndexBuffer(pNode->m_pIndexBuffer.Get(),
+			DXGI_FORMAT_R32_UINT, 0);
+		m_pMap->m_dxHelper.m_pContext->DrawIndexed(pNode->m_IndexList.size(), 0, 0);
+	}
 	return true;
 }
 bool HQuadTree::Draw(HNode* pNode, ID3D11DeviceContext* pContext)
 {
 	if (pNode == nullptr) { return false; }
 
-	if (pNode->m_isLeaf==TRUE)
+	if (pNode->m_isLeaf == TRUE)
 	{
 		F_POSITION Pos = m_pCamera->CheckOBBInPlane(pNode->m_Box);
-		if (Pos!=BACK)
+		if (Pos != BACK)
 		{
 			pContext->IASetIndexBuffer(pNode->m_pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 			pContext->DrawIndexed(pNode->m_IndexList.size(), 0, 0);
 		}
-	
+
 	}
 	for (int iNode = 0; iNode < 4; iNode++)
 	{
@@ -407,17 +422,17 @@ void HQuadTree::CreateIndexList(HNode* pNode)
 		for (int iCol = dwStartCol; iCol < dwEndCol; iCol++)
 		{
 			pNode->m_IndexList[dwIndex++] = iRow * m_pMap->m_iColumNum + iCol;
-			pNode->m_IndexList[dwIndex++] = iRow * m_pMap->m_iColumNum + iCol+1;
-			pNode->m_IndexList[dwIndex++] = (iRow+1) * m_pMap->m_iColumNum+iCol;
+			pNode->m_IndexList[dwIndex++] = iRow * m_pMap->m_iColumNum + iCol + 1;
+			pNode->m_IndexList[dwIndex++] = (iRow + 1) * m_pMap->m_iColumNum + iCol;
 
 			pNode->m_IndexList[dwIndex++] = (iRow + 1) * m_pMap->m_iColumNum + iCol;
 			pNode->m_IndexList[dwIndex++] = iRow * m_pMap->m_iColumNum + iCol + 1;
-			pNode->m_IndexList[dwIndex++] = (iRow + 1) * m_pMap->m_iColumNum + iCol+1;
+			pNode->m_IndexList[dwIndex++] = (iRow + 1) * m_pMap->m_iColumNum + iCol + 1;
 
 		}
 	}
 	pNode->m_pIndexBuffer.Attach(DX::CreateIndexBuffer(
-		m_pMap->m_dxHelper.m_pd3dDevice, 
+		m_pMap->m_dxHelper.m_pd3dDevice,
 		&pNode->m_IndexList.at(0),
 		pNode->m_IndexList.size(), sizeof(DWORD)));
 

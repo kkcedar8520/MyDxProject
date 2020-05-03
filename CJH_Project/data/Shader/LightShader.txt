@@ -167,7 +167,10 @@ VS_OUT VS(VS_IN inData)
 Texture2D		g_txDiffuseA : register(t0);
 Texture2D		g_txDiffuseB : register(t1);
 Texture2D		g_SplattingAlpha:register(t2);
-Texture2D		g_SplatTex:	   register(t3);
+Texture2D		g_SplatTex1;
+Texture2D		g_SplatTex2;
+Texture2D		g_SplatTex3;
+Texture2D		g_SplatTex4;
 SamplerState	g_Sample0 : register(s0);
 
 struct PS_IN
@@ -192,7 +195,13 @@ PS_OUT PS(PS_IN inData)
 	float4 vFinal = g_txDiffuseA.Sample(g_Sample0, inData.t);	
 	float4 normal = g_txDiffuseB.Sample(g_Sample0, inData.t);	
 	float4 vAlpha=g_SplattingAlpha.Sample(g_Sample0,inData.t);
-	float4 vTexture1=g_SplatTex.Sample(g_Sample0,inData.t);
+
+	float4 vTexture1=g_SplatTex1.Sample(g_Sample0,inData.t);
+	float4 vTexture2=g_SplatTex2.Sample(g_Sample0,inData.t);
+	float4 vTexture3=g_SplatTex3.Sample(g_Sample0,inData.t);
+	float4 vTexture4=g_SplatTex4.Sample(g_Sample0,inData.t);
+
+
 	normal = normalize((normal - 0.5f) * 2.0f);
 	/*vOut.c =vFinal*(Diffuse(normal.xyz)+
 			Specular(normal.xyz)+
@@ -201,15 +210,15 @@ PS_OUT PS(PS_IN inData)
 	
 	
 	float4 vFinalColor=vFinal*Diffuse(normal.xyz);
+
+
+
+	vFinalColor = lerp(vFinalColor,vTexture1, vAlpha.r);
+	vFinalColor = lerp(vFinalColor,vTexture2, vAlpha.g);
+	vFinalColor = lerp(vFinalColor,vTexture3, vAlpha.b);
+	vFinalColor = lerp(vFinalColor,vTexture4, vAlpha.a);
 	vOut.c=vFinalColor;
-	
-
-	if(vAlpha.x>0.3)
-	{
-	vOut.c=vTexture1;//float4(0,vAlpha.x,0,0);//vFinalColor;vTexture1;
-	vOut.c.a=1.0;
-	}
-
+	vOut.c.a=1.0f;
 
 	return vOut;
 }

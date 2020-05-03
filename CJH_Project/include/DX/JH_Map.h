@@ -25,6 +25,8 @@ class JH_Map :public JH_ShapePlane
 {
 public:
 	bool	m_bMapEdit;
+	vector<Texture*> m_vTextureList;
+
 public:
 	vector<D3DXVECTOR3>  m_TangentList;
 	NormalMap			 m_NormalMap;
@@ -66,8 +68,9 @@ public:
 	void UpdateConstantBuffer(ID3D11Buffer* pConstantBuffer, void* Data);
 	float Lerp(float fStart, float fEnd, float fTangent);
 		//노말맵 접선 벡터 계산
-
+	
 	//툴 관련 함수
+	bool AddSplattTexture(const TCHAR* pFileName);
 public:
 
 public:

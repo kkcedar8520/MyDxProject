@@ -37,4 +37,12 @@ public:
 	afx_msg void OnBnClickedOk4();
 	CString m_Brush;
 	afx_msg void OnBnClickedOk5();
+	CString m_SplattTexture1;
+	CString m_SplattTexture2;
+	CString m_SplattTexture3;
+	CString m_SplattTexture4;
+	afx_msg void OnBnClickedOk6();
+	afx_msg void OnSplattTexture2BnClickedOk();
+	afx_msg void OnSplattTexture3BnClickedOk();
+	afx_msg void OnSplattTexture4BnClickedOk();
 };

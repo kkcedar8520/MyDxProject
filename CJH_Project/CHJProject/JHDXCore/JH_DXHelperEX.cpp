@@ -354,6 +354,36 @@ namespace DX
 		return pUAV;
 	}
 
+	ID3D11UnorderedAccessView* CreateTextureUAV(
+		ID3D11Texture2D* pTexture,
+		ID3D11Device*  pd3dDevice)
+	{
+		HRESULT hr = S_OK;
+		ID3D11UnorderedAccessView* pUAV=nullptr;
+
+
+		D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
+
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Texture2D.MipSlice = 0;
+		desc.Format= DXGI_FORMAT_R32G32B32A32_FLOAT;
+		desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+
+
+		//D3D11_UNORDERED_ACCESS_VIEW_DESC viewDescUAV;
+		//ZeroMemory(&viewDescUAV, sizeof(viewDescUAV));
+		//viewDescUAV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		//viewDescUAV.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+		//viewDescUAV.Texture2D.MipSlice = 0;
+		
+		if (FAILED(hr = pd3dDevice->CreateUnorderedAccessView(pTexture, &desc, &pUAV)))
+		{
+			H(hr);
+			return nullptr;
+		}
+
+		return pUAV;
+	}
 	ID3D11ComputeShader* CreateComputeShader(ID3D11Device* pDevice, LPCWSTR pSrcFile, const CHAR* pFunctionName)
 	{
 		HRESULT hr;
@@ -399,7 +429,7 @@ namespace DX
 
 	}
 
-	ID3D11ShaderResourceView*	CreateShaderResourceView(ID3D11Device* pDevice,ID3D11Texture2D* pTexture,const TCHAR* strFilePath)
+	ID3D11ShaderResourceView*	CreateShaderResourceView(ID3D11Device* pDevice,ID3D11Texture2D* pTexture)
 	{
 		HRESULT hr = S_OK;
 
@@ -410,13 +440,14 @@ namespace DX
 			svd.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
 			svd.Texture2D.MipLevels = 1;
 			svd.Texture2D.MostDetailedMip = 0;
-		if (strFilePath == NULL) return nullptr;
-		ID3D11ShaderResourceView* pSRV = nullptr;
+
+
+
 		if (FAILED(hr = pDevice->CreateShaderResourceView(pTexture, &svd,&pSrv)))
 		{
 			H(hr);
 			return nullptr;
 		}
-		return pSRV;
+		return pSrv;
 	}
 }

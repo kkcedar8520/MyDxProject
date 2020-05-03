@@ -1,7 +1,17 @@
 #include "JH_Map.h"
+//툴관련 함수
+bool JH_Map::AddSplattTexture(const TCHAR* pFileName)
+{
 
+	int index=I_Texture.Add(m_dxHelper.m_pd3dDevice, pFileName);
+
+
+	m_vTextureList.push_back(I_Texture.GetPtr(index));
+	return true;
+}
+// Base Function
 bool	JH_Map::UpdateBuffer()
-{//--------------------------------------------------------------------------------------	
+{
 	D3DXVECTOR3 vTangent, vBiNormal, vNormal;
 	int iIndex = 0;
 	int i0, i1, i2, i3, i4, i5;

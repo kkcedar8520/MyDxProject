@@ -21,6 +21,10 @@ JH_MapForm::JH_MapForm()
 	, m_TextrueName(_T(""))
 	, m_NormalMapFile(_T(""))
 	, m_Brush(_T(""))
+	, m_SplattTexture1(_T(""))
+	, m_SplattTexture2(_T(""))
+	, m_SplattTexture3(_T(""))
+	, m_SplattTexture4(_T(""))
 {
 
 }
@@ -48,6 +52,10 @@ void JH_MapForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT5, m_TextrueName);
 	DDX_Text(pDX, IDC_EDIT6, m_NormalMapFile);
 	DDX_Text(pDX, IDC_EDIT8, m_Brush);
+	DDX_Text(pDX, IDC_EDIT10, m_SplattTexture1);
+	DDX_Text(pDX, IDC_EDIT9, m_SplattTexture2);
+	DDX_Text(pDX, IDC_EDIT11, m_SplattTexture3);
+	DDX_Text(pDX, IDC_EDIT12, m_SplattTexture4);
 }
 
 
@@ -60,6 +68,10 @@ BEGIN_MESSAGE_MAP(JH_MapForm, CFormView)
 	ON_BN_CLICKED(IDOK4, &JH_MapForm::OnBnClickedOk4)
 	ON_BN_CLICKED(IDOK4, &JH_MapForm::OnBnClickedOk4)
 	ON_BN_CLICKED(IDOK5, &JH_MapForm::OnBnClickedOk5)
+	ON_BN_CLICKED(IDOK6, &JH_MapForm::OnBnClickedOk6)
+	ON_BN_CLICKED(IDOK7, &JH_MapForm::OnSplattTexture2BnClickedOk)
+	ON_BN_CLICKED(IDOK8, &JH_MapForm::OnSplattTexture3BnClickedOk)
+	ON_BN_CLICKED(IDOK9, &JH_MapForm::OnSplattTexture4BnClickedOk)
 END_MESSAGE_MAP()
 
 
@@ -168,4 +180,87 @@ void JH_MapForm::OnBnClickedOk5()
 	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
 
 	pApp->m_Sample.bSplatting = !pApp->m_Sample.bSplatting;
+}
+
+
+
+
+void JH_MapForm::OnBnClickedOk6()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(FALSE);
+
+	CString FileName;
+
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
+
+
+
+	CFileDialog dlg(FALSE, L"bmp|jpg", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST,
+		L"bmp Files(*.bmp)|*.bmp| All Files(*.*)|*.*|", this);
+	if (dlg.DoModal() == IDOK)
+	{
+		FileName = dlg.GetPathName();
+		m_SplattTexture1 = FileName;
+		pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture1);
+		UpdateData(FALSE);
+	}
+}
+
+
+void JH_MapForm::OnSplattTexture2BnClickedOk()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(FALSE);
+	CString FileName;
+
+
+	CFileDialog dlg(FALSE, L"bmp|jpg", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST,
+		L"bmp Files(*.bmp)|*.bmp| All Files(*.*)|*.*|", this);
+
+	if (dlg.DoModal() == IDOK)
+	{
+		FileName = dlg.GetPathName();
+		m_SplattTexture2 = FileName;
+		UpdateData(FALSE);
+	}
+}
+
+
+void JH_MapForm::OnSplattTexture3BnClickedOk()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(FALSE);
+	CString FileName;
+
+
+	CFileDialog dlg(FALSE, L"bmp|jpg", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST,
+		L"bmp Files(*.bmp)|*.bmp| All Files(*.*)|*.*|", this);
+
+	if (dlg.DoModal() == IDOK)
+	{
+		FileName = dlg.GetPathName();
+		m_SplattTexture3 = FileName;
+		UpdateData(FALSE);
+	}
+}
+
+
+void JH_MapForm::OnSplattTexture4BnClickedOk()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	UpdateData(FALSE);
+	CString FileName;
+
+
+	CFileDialog dlg(FALSE, L"bmp|jpg", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST,
+		L"bmp Files(*.bmp)|*.bmp| All Files(*.*)|*.*|", this);
+
+	if (dlg.DoModal() == IDOK)
+	{
+		FileName = dlg.GetPathName();
+		m_SplattTexture4 = FileName;
+		UpdateData(FALSE);
+	}
 }

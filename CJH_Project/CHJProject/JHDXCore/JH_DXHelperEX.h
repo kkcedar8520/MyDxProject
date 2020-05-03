@@ -29,6 +29,10 @@ namespace DX
 		ID3D11Buffer* pBuffer,
 		ID3D11Device*  pd3dDevice);
 
+	ID3D11UnorderedAccessView* CreateTextureUAV(
+		ID3D11Texture2D* pTexture,
+		ID3D11Device*  pd3dDevice);
+
 	ID3D11ComputeShader* CreateComputeShader(ID3D11Device* pDevice, LPCWSTR pSrcFile, const CHAR* pFunctionName);
 }
 

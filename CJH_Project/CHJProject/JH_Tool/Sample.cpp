@@ -8,31 +8,48 @@
 
 
 #pragma warning( disable:4005 )
-HRESULT Sample::CreateComputeShaderResourceView()
-{
-	HRESULT hr = S_OK;
-
-	DX::CreateShaderResourceView(m_pd3dDevice,)
-	pSrcTexture
-
-	return hr;
-
-
-}
-void Sample::RunComputeShader(UINT nNumViews, ID3D11ShaderResourceView* pShaderResourceView,
-	ID3D11UnorderedAccessView* pUnorderedAccessView ,UINT X, UINT Y, UINT Z )
+//HRESULT Sample::CreateComputeShaderResourceView()
+//{
+//	HRESULT hr = S_OK;
+//
+//	m_pDestSrv.Attach(DX::CreateShaderResourceView(m_pd3dDevice.Get(), pDestTexture.Get()));
+//	m_pSplSrv.Attach(DX::CreateShaderResourceView(m_pd3dDevice.Get(), pSrcTexture.Get()));
+//
+//
+//	return hr;
+//
+//
+//}
+void 	Sample::RunComputeShaderSplatting(UINT nNumViews,ID3D11ShaderResourceView** pShaderResourceView,
+	ID3D11UnorderedAccessView* pUnorderedAccessView, UINT X, UINT Y, UINT Z)
 {
 	
-	ID3D11ShaderResourceView* aRViews[2] = { pShaderResourceView , m_Map->m_dxHelper.m_pSRV };
+
 	m_pImmediateContext->CSSetShader(m_pCS.Get(), NULL, 0);
-	m_pImmediateContext->CSSetShaderResources(0, nNumViews,aRViews);
+
+
+	m_pImmediateContext->CSSetShaderResources(0, nNumViews,pShaderResourceView);
 	m_pImmediateContext->CSSetUnorderedAccessViews(0, 1,&pUnorderedAccessView, NULL);
 
 	m_pImmediateContext->Dispatch(X, Y, Z);
 
 	m_pImmediateContext->CSSetShader(NULL, NULL, 0);
 
-	
+
+	// CS 세팅 해제
+	ID3D11UnorderedAccessView* ppUAViewNULL[1] = { NULL };
+	m_pImmediateContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, NULL);
+
+	ID3D11ShaderResourceView* ppSRVNULL[2] = { NULL, NULL };
+	m_pImmediateContext->CSSetShaderResources(0, 2, ppSRVNULL);
+
+	ID3D11Buffer* ppCBNULL[1] = { NULL };
+	m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);
+	//m_pImmediateContext->CopyResource((ID3D11Resource*)m_pReadSrv.Get(), (ID3D11Resource*)m_pUAV.Get());
+
+	//m_pSplSrv.Reset();
+	//m_pSplSrv.Attach(DX::CreateShaderResourceView(m_pd3dDevice.Get(), pSrcTexture.Get()));
+
 }
 HRESULT	Sample::CreateSplattingTexture()
 {
@@ -59,6 +76,9 @@ HRESULT	Sample::CreateSplattingTexture()
 	{
 		return hr;
 	}
+	
+
+
 	td.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	td.BindFlags = D3D11_BIND_RENDER_TARGET|D3D11_BIND_SHADER_RESOURCE;
 	td.Usage = D3D11_USAGE_DEFAULT;
@@ -66,64 +86,114 @@ HRESULT	Sample::CreateSplattingTexture()
 	{
 		return hr;
 	}
+
+
+
+
+	
 }
-//HRESULT Sample::MapSplatting(SPHERE Sphere)
-//{
-//
-//	
-//
-//	
-//	//HRESULT hr=S_OK;
-//
-//
-//	//D3D11_MAPPED_SUBRESOURCE MapSrc;
-//	//
-//	//static int i = 0;
-//	//if (SUCCEEDED(m_pImmediateContext->Map((ID3D11Resource*)pDestTexture.Get(), NULL, D3D11_MAP_READ_WRITE, NULL, &MapSrc)))
-//	//{
-//
-//	//	UCHAR* pTexcell = (UCHAR*)MapSrc.pData;
-//	//	for (int iRow = 0; iRow < m_Map->m_iRowNum; iRow++)
-//	//	{
-//	//		int irowStart = MapSrc.RowPitch*iRow;
-//	//		for (int iCol = 0; iCol < m_Map->m_iColumNum; iCol++)
-//	//		{
-//	//			float fDistance = sqrt((Sphere.vCenter.x - iCol)*(Sphere.vCenter.x - iCol) +
-//	//				(Sphere.vCenter.z - iRow)*(Sphere.vCenter.z - iRow));
-//	//			if (fDistance <= Sphere.Radius)
-//	//			{
-//	//				pTexcell[irowStart + iCol * 4]=254.0f;
-//	//				//pTexcell[i++] = 254.0f;
-//	//			}
-//
-//	//			
-//	//		}
-//
-//	//	}
-//	//
-//	//	m_pImmediateContext->Unmap((ID3D11Resource*)pDestTexture.Get(), D3D11CalcSubresource(0, 0, 1));
-//
-//	//}
-//
-//
-//
-//	//
-//	//
-//	//m_pImmediateContext->CopyResource((ID3D11Resource*)pSrcTexture.Get(),(ID3D11Resource*)pDestTexture.Get());
-//
-//	//D3D11_SHADER_RESOURCE_VIEW_DESC svd;
-//	//ZeroMemory(&svd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-//	//svd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-//	//svd.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
-//	//svd.Texture2D.MipLevels = 1;
-//	//svd.Texture2D.MostDetailedMip = 0;
-//
-//
-//	//m_pSplSrv.Reset();
-//	//m_pd3dDevice->CreateShaderResourceView((ID3D11Resource*)pSrcTexture.Get(), &svd, m_pSplSrv.GetAddressOf());
-//	//m_pImmediateContext->PSSetShaderResources(2, 1, m_pSplSrv.GetAddressOf());
-//	//return hr;
-//}
+HRESULT Sample::CreateCSTexture()
+{
+
+	HRESULT hr = S_OK;
+	//before dispatch
+	D3D11_TEXTURE2D_DESC td;
+	ZeroMemory(&td, sizeof(td));
+	td.Width = m_Map->m_iRowNum - 1;
+	td.Height = m_Map->m_iColumNum - 1;
+	td.MipLevels = 1;
+	td.ArraySize = 1;
+	td.SampleDesc.Count = 1;
+	td.SampleDesc.Quality = 0;
+	td.Usage = D3D11_USAGE_DEFAULT;
+	td.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+	td.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	hr = m_pd3dDevice->CreateTexture2D(&td, NULL, pUAVTexture.GetAddressOf());
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC viewDescUAV;
+	ZeroMemory(&viewDescUAV, sizeof(viewDescUAV));
+	viewDescUAV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	viewDescUAV.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	viewDescUAV.Texture2D.MipSlice = 0;
+ 	hr = m_pd3dDevice->CreateUnorderedAccessView(pUAVTexture.Get(), &viewDescUAV, m_pUAV.GetAddressOf());
+
+	//the getSRV function after dispatch.
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	hr = m_pd3dDevice->CreateShaderResourceView(pUAVTexture.Get(), &srvDesc, m_pReadSrv.GetAddressOf());
+
+
+
+
+	m_pStructureBF.Attach(DX::CreateStructureBuffer(m_pd3dDevice.Get(), &m_vBuf0[0], 1, sizeof(BufType)));
+	m_pBufSrv.Attach(DX::CreateBufferSrv(m_pd3dDevice.Get(), m_pStructureBF.Get()));
+
+
+	return hr;
+}
+HRESULT Sample::MapSplatting(SPHERE Sphere)
+{
+
+	
+
+	
+	HRESULT hr=S_OK;
+
+
+	D3D11_MAPPED_SUBRESOURCE MapSrc;
+	
+	static int i = 0;
+	if (SUCCEEDED(m_pImmediateContext->Map((ID3D11Resource*)pDestTexture.Get(), NULL, D3D11_MAP_READ_WRITE, NULL, &MapSrc)))
+	{
+
+		UCHAR* pTexcell = (UCHAR*)MapSrc.pData;
+		for (int iRow = 0; iRow < m_Map->m_iRowNum; iRow++)
+		{
+			int irowStart = MapSrc.RowPitch*iRow;
+			for (int iCol = 0; iCol < m_Map->m_iColumNum; iCol++)
+			{
+				float fDistance = sqrt((Sphere.vCenter.x - iCol)*(Sphere.vCenter.x - iCol) +
+					(Sphere.vCenter.z - iRow)*(Sphere.vCenter.z - iRow));
+				if (fDistance <= Sphere.Radius)
+				{
+					pTexcell[irowStart + iCol * 4]=100.0f;
+					pTexcell[irowStart + iCol * 4+1] = 150.0f;
+					pTexcell[irowStart + iCol * 4+2] = 100.0f;
+					pTexcell[irowStart + iCol * 4+3] = 150.0f;
+
+				}
+
+				
+			}
+
+		}
+	
+		m_pImmediateContext->Unmap((ID3D11Resource*)pDestTexture.Get(), D3D11CalcSubresource(0, 0, 1));
+
+	}
+
+
+
+	
+	
+	m_pImmediateContext->CopyResource((ID3D11Resource*)pSrcTexture.Get(),(ID3D11Resource*)pDestTexture.Get());
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC svd;
+	ZeroMemory(&svd, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	svd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	svd.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
+	svd.Texture2D.MipLevels = 1;
+	svd.Texture2D.MostDetailedMip = 0;
+
+
+	m_pSplSrv.Reset();
+	m_pd3dDevice->CreateShaderResourceView((ID3D11Resource*)pSrcTexture.Get(), &svd, m_pSplSrv.GetAddressOf());
+	m_pImmediateContext->PSSetShaderResources(2, 1, m_pSplSrv.GetAddressOf());
+	return hr;
+}
 void Sample::GetNearPoint()
 {
 	D3DXVECTOR3 v0, v1, v2, vIntersection;
@@ -239,6 +309,7 @@ bool Sample::CreateMap(int iWidth,
 	}
 
 	CreateSplattingTexture();
+	CreateCSTexture();
 	m_Map->SetMapDesc(pTexturFileName, L"../../data/Shader/LightShader.txt", m_Map->m_iRowNum, m_Map->m_iColumNum, iCellSize, 2.0f);
 
 
@@ -278,11 +349,13 @@ bool Sample::Init()
 
 	I_LIGHT_MGR.Init();
 
-	int iNumTex = I_Texture.Add(m_pd3dDevice.Get(), L"../../data/map/Tile20.jpg");
-	m_pTexture = I_Texture.GetPtr(iNumTex);
+	//임시 Splatt 텍스쳐
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC sd;
-	m_pTexture->m_pTextureRV->GetDesc(&sd);
+	//int iNumTex = I_Texture.Add(m_pd3dDevice.Get(), L"../../data/map/Tile20.jpg");
+	//m_pTexture = I_Texture.GetPtr(iNumTex);
+
+	//D3D11_SHADER_RESOURCE_VIEW_DESC sd;
+	//m_pTexture->m_pTextureRV->GetDesc(&sd);
 
 	
 	m_pBox = make_shared<JHShapeBox>();
@@ -292,20 +365,9 @@ bool Sample::Init()
 	//ComPuteShader
 	m_pCS.Attach(DX::CreateComputeShader(m_pd3dDevice.Get(), L"ComputeShader.HLSL","CSMAIN"));
 
-	m_vBuf0[0].fRadius = 100.0f;
-	m_vBuf0[0].iIndex = 2;
-	
-	m_vBuf0[0].vRect[0] = D3DXVECTOR3(-100, 0, 100);
-	m_vBuf0[0].vRect[1] = D3DXVECTOR3(100, 0, 100);
-	m_vBuf0[0].vRect[2] = D3DXVECTOR3(100, 0, -100);
-	m_vBuf0[0].vRect[3] = D3DXVECTOR3(-100, 0, -100);
 
-	m_pStructureBF.Attach(DX::CreateStructureBuffer(m_pd3dDevice.Get(), &m_vBuf0[0], 1, sizeof(BufType)));
-	m_pBufSrv.Attach(DX::CreateBufferSrv(m_pd3dDevice.Get(), m_pStructureBF.Get()));
 	
-	m_pUAV.Attach(DX::CreateBufferUAV(m_pStructureBF.Get(), m_pd3dDevice.Get()));
 	
-
 
 	
 	m_vp.Width = 150;
@@ -350,7 +412,7 @@ bool Sample::Frame()
 	if (m_Map == nullptr)return true;
 
 	 //test/adsfadsf
-	RunComputeShader(2, m_pBufSrv.Get(), m_pUAV.Get(), 17, 17, 1);
+
 
 	D3DXVECTOR3 v0, v1, v2, vIntersection;
 	I_LIGHT_MGR.Frame();
@@ -370,24 +432,39 @@ bool Sample::Frame()
 		}
 		
 	}
-	
-	
-		//if (bSplatting)
-		//{
-		//	if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
-		//	{
-		//		GetNearPoint();
-		//		m_vBuf0[0].vPickPos = m_NearPoint;
-		//		SPHERE sphere;
-		//		D3DXVECTOR3 vPoint = D3DXVECTOR3(m_NearPoint.x + ((m_Map->m_iRowNum-1) / 2.0f),
-		//			0, -(m_NearPoint.z) + ((m_Map->m_iColumNum-1)/ 2.0f));
-		//		sphere.vCenter = vPoint;
-		//		sphere.Radius = 2;
-		//		MapSplatting(sphere);
 
-		//		m_pImmediateContext->PSSetShaderResources(3, 1, &m_pTexture->m_pTextureRV);
-		//	}
-		//}
+	//if (bSplatting)
+	//{
+	//	if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
+	//	{
+	//		GetNearPoint();
+	//		m_vBuf0[0].vPickPos = D3DXVECTOR3(0,0,0);
+	//		m_vBuf0[0].iIndex = 0;
+	//		m_vBuf0[0].fRadius = 1;
+	//		ID3D11ShaderResourceView* aView[2] = {m_pReadSrv.Get(), m_pBufSrv.Get() };
+	//		RunComputeShaderSplatting(2, aView,m_pUAV.Get(), m_Map->m_iRowNum-1 / 32, m_Map->m_iColumNum-1 / 24, 1);
+
+	//		m_pImmediateContext->PSSetShaderResources(2, 1, &m_pReadSrv);
+	//		m_pImmediateContext->PSSetShaderResources(3, 1, &m_pTexture->m_pTextureRV);
+	//	}
+	//}
+
+	
+		if (bSplatting)
+		{
+			if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
+			{
+				GetNearPoint();
+				SPHERE sphere;
+				D3DXVECTOR3 vPoint = D3DXVECTOR3(m_NearPoint.x + ((m_Map->m_iRowNum-1) / 2.0f),
+					0, -(m_NearPoint.z) + ((m_Map->m_iColumNum-1)/ 2.0f));
+				sphere.vCenter = vPoint;
+				sphere.Radius = 2;
+				MapSplatting(sphere);
+
+				//m_pImmediateContext->PSSetShaderResources(3, 1, &m_pTexture->m_pTextureRV);
+			}
+		}
 
 	
 	m_QuadTree->Frame();
@@ -495,7 +572,11 @@ bool Sample::Release()
 
 
 	m_DebugLine->Release();
-	m_pTexture->Release();
+	if (m_pTexture)
+	{
+		m_pTexture->Release();
+	}
+
 	return true;
 }
 Sample::Sample()

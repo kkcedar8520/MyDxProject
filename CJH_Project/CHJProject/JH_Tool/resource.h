@@ -6,6 +6,10 @@
 #define IDOK3                           4
 #define IDOK4                           5
 #define IDOK5                           7
+#define IDOK6                           10
+#define IDOK7                           11
+#define IDOK8                           12
+#define IDOK9                           13
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
 #define IDR_POPUP_EDIT                  119
@@ -88,8 +92,12 @@
 #define IDC_EDIT6                       1005
 #define IDC_EDIT7                       1006
 #define IDC_LIST4                       1007
+#define IDC_EDIT9                       1008
 #define IDC_SLIDER1                     1009
 #define IDC_EDIT8                       1010
+#define IDC_EDIT10                      1011
+#define IDC_EDIT11                      1012
+#define IDC_EDIT12                      1013
 #define ID_TOOL_CREATEMAP               32771
 #define ID_TOOL_LOADOBJECT              32772
 
