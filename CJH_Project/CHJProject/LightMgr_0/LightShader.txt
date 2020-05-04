@@ -1,5 +1,5 @@
 
-#define g_iLightNum 2
+#define g_iLightNum 1
 
 
 struct VS_OUT

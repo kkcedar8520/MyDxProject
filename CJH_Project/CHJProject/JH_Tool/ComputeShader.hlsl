@@ -36,18 +36,18 @@ void CSMAIN(uint3 GroupID : SV_GroupID, uint3 DispatchThreadID : SV_DispatchThre
 		float4 fAlpha = float4(0, 0, 0, 0);// *float4(fDot, fDot, fDot, fDot);
 		switch (Buffer0[0].iIndex)
 		{
-		case 0: fAlpha.x = 1; break;
-		case 1: fAlpha.y = 1; break;
-		case 2: fAlpha.z = 1; break;
-		case 3: fAlpha.w = 1; break;
+		case 0: fAlpha.x = 255; break;
+		case 1: fAlpha.y =0; break;
+		case 2: fAlpha.z = 0; break;
+		case 3: fAlpha.w = 0; break;
 		default:
-			fAlpha.x = 1; break;
+			fAlpha.x = 255; break;
 		}
 		OutputMap[texturelocation.xy] = fAlpha;// Color * float4(fDot, fDot, fDot, fDot);
 	}
 	else
 	{
-		OutputMap[texturelocation.xy] = float4(1.0f, 0.0f, 0.0f, 1.0f);// -Color;
+		OutputMap[texturelocation.xy] = float4(255.0f, 0.0f, 0.0f, 1.0f);// -Color;
 	}
 
 }

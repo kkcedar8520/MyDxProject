@@ -1,12 +1,14 @@
 #include "JH_Map.h"
-//툴관련 함수
-bool JH_Map::AddSplattTexture(const TCHAR* pFileName)
-{
 
+//툴관련 함수
+
+INT JH_Map::AddSplattTexture(const TCHAR* pFileName, float Alpha)
+{
+	if (!this) return -1;
 	int index=I_Texture.Add(m_dxHelper.m_pd3dDevice, pFileName);
 
-
 	m_vTextureList.push_back(I_Texture.GetPtr(index));
+
 	return true;
 }
 // Base Function
@@ -469,6 +471,7 @@ bool JH_Map::Release()
 }
 JH_Map::JH_Map()
 {
+
 	m_iTexNum = -1;
 	m_bMapEdit = false;
 }

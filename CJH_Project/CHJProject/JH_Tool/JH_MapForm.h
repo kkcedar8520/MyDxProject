@@ -45,4 +45,15 @@ public:
 	afx_msg void OnSplattTexture2BnClickedOk();
 	afx_msg void OnSplattTexture3BnClickedOk();
 	afx_msg void OnSplattTexture4BnClickedOk();
+	float m_SplattTex1Alpha;
+	float m_SplattTex2Alpha;
+	float m_SplattTex3Alpha;
+	float m_SplattTex4Alpha;
+
+	int m_SplattTex1ID;
+	int m_SplattTex2ID;
+	int m_SplattTex3ID;
+	int m_SplattTex4ID;
+	//afx_msg void OnUpdateSplattTex1();
+	afx_msg void OnEnChangeEdit14();
 };

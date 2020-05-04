@@ -1,5 +1,15 @@
 #include "TextureMgr.h"
 
+void			Texture::SetAlpha(float Alpha)
+{
+	if (!this) return;
+	m_fAlpha = Alpha;
+}
+float			Texture::GetAlpha()
+{
+	if (!this) return 0.0f;
+	return m_fAlpha;
+}
 HRESULT		Texture::Load(ID3D11Device* pDevice,
 	const TCHAR* strFilePath)
 {

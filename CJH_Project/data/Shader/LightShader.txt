@@ -146,7 +146,7 @@ VS_OUT VS(VS_IN inData)
 	vOut.p = vProj;
 	vOut.n=inData.n;
 	vOut.c=inData.c;
-	vOut.t =inData.t;
+	vOut.t =inData.t*10;
 	vOut.v= vWorld;
 	float3 fTan=normalize(mul(inData.tan,(float3x3)g_matNorm));
 	float3 B=cross(fTan,inData.n);
@@ -203,21 +203,23 @@ PS_OUT PS(PS_IN inData)
 
 
 	normal = normalize((normal - 0.5f) * 2.0f);
-	/*vOut.c =vFinal*(Diffuse(normal.xyz)+
-			Specular(normal.xyz)+
+	/*vOut.c =vFinal*(Diffuse(inData.n.xyz)+
+			Specular(inData.n.xyz)+
 			ComputePointLight(inData.v,inData.n.xyz)
 			+ComputeSpotLight(inData.v,inData.n.xyz));*/
 	
 	
-	float4 vFinalColor=vFinal*Diffuse(normal.xyz);
+	//float4 vFinalColor=float4(inData.n.x,inData.n.y,inData.n.z,1);//vFinal*Diffuse(inData.n);
 
 
 
-	vFinalColor = lerp(vFinalColor,vTexture1, vAlpha.r);
-	vFinalColor = lerp(vFinalColor,vTexture2, vAlpha.g);
-	vFinalColor = lerp(vFinalColor,vTexture3, vAlpha.b);
-	vFinalColor = lerp(vFinalColor,vTexture4, vAlpha.a);
-	vOut.c=vFinalColor;
+	//vFinalColor = lerp(vFinalColor,vTexture1, vAlpha.r);
+	//vFinalColor = lerp(vFinalColor,vTexture2, vAlpha.g);
+	//vFinalColor = lerp(vFinalColor,vTexture3, vAlpha.b);
+	//vFinalColor = lerp(vFinalColor,vTexture4, vAlpha.a);
+	//vOut.c=vFinalColor;
+	
+	vOut.c=vLightDirection[0];//Diffuse(inData.n.xyz);
 	vOut.c.a=1.0f;
 
 	return vOut;

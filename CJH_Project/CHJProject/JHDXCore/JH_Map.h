@@ -3,6 +3,11 @@
 #include"JH_ShapePlane.h"
 #include"TextureMgr.h"
 #include"NormalMap.h"
+struct SplattTextureDesc
+{
+	int TexNum;
+	float Alpha;
+};
 struct MapDesc
 {
 	int iColumNum;
@@ -26,7 +31,6 @@ class JH_Map :public JH_ShapePlane
 public:
 	bool	m_bMapEdit;
 	vector<Texture*> m_vTextureList;
-
 public:
 	vector<D3DXVECTOR3>  m_TangentList;
 	NormalMap			 m_NormalMap;
@@ -70,7 +74,8 @@ public:
 		//노말맵 접선 벡터 계산
 	
 	//툴 관련 함수
-	bool AddSplattTexture(const TCHAR* pFileName);
+	INT AddSplattTexture(const TCHAR* pFileName,float Alpha=0.0f);
+
 public:
 
 public:

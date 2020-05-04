@@ -34,8 +34,8 @@ public:
 	ComPtr<ID3D11UnorderedAccessView>	m_pUAV;
 	ComPtr<ID3D11ComputeShader>			m_pCS;
 	BufType								m_vBuf0[1];
-	
-	
+	//Shadow
+	vector<RenderTarget>				m_RTTextureList;
 public:
 	JH_ShapePlane			m_MiniMap;
 	D3DXMATRIX				m_matTopView;

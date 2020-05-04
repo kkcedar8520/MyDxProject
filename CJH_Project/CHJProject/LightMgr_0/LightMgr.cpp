@@ -86,7 +86,7 @@ bool LightMgr::Init()
 	for (int i = 0; i < m_iLightNum; i++)
 	{
 		m_LightObjList[i].CreateLightObj(m_pDevice, m_pContext, m_LightInfoList[i]);
-		m_LightObjList[i].Create(m_pDevice, m_pContext, L"../../data/Shader/LightShader.txt", L".. / .. / data / map / heightMap513.bmp");
+		m_LightObjList[i].Create(m_pDevice, m_pContext, L"LightShader.txt", L".. / .. / data / map / heightMap513.bmp");
 		m_cbLight.vAmbinentLightColor[i]		= m_LightObjList[i].m_Info.vAmbinentLightColor;
 		m_cbLight.vDiffuseLightColor[i]			= m_LightObjList[i].m_Info.vDiffuseLightColor;
 		m_cbLight.vSpecularLightColor[i]		= m_LightObjList[i].m_Info.vSpecularLightColor;

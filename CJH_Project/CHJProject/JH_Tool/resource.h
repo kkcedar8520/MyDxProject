@@ -98,6 +98,12 @@
 #define IDC_EDIT10                      1011
 #define IDC_EDIT11                      1012
 #define IDC_EDIT12                      1013
+#define IDC_EDIT14                      1014
+#define IDC_EDIT13                      1015
+#define IDC_EDIT15                      1016
+#define IDC_SCROLLBAR2                  1018
+#define IDC_EDIT16                      1020
+#define IDC_EDIT17                      1021
 #define ID_TOOL_CREATEMAP               32771
 #define ID_TOOL_LOADOBJECT              32772
 
@@ -107,7 +113,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        314
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1010
+#define _APS_NEXT_CONTROL_VALUE         1019
 #define _APS_NEXT_SYMED_VALUE           329
 #endif
 #endif

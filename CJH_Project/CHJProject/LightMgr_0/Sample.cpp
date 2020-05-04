@@ -18,7 +18,7 @@ bool Sample::Init()
 	m_Map.CreateHeightMap(m_pd3dDevice.Get(), m_pImmediateContext.Get(), L"../../data/map/heightMap513.bmp");
 
 
-	m_Map.SetMapDesc(L"../../data/map/Tile20.jpg", L"../../data/Shader/LightShader.txt", m_Map.m_iColumNum, m_Map.m_iRowNum, 1, 5.0f);
+	m_Map.SetMapDesc(L"../../data/map/Tile20.jpg", L"LightShader.txt", m_Map.m_iColumNum, m_Map.m_iRowNum, 1, 5.0f);
 
 	m_Map.Load(m_pd3dDevice.Get(), m_pImmediateContext.Get());
 

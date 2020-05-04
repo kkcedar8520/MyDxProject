@@ -7,6 +7,7 @@ public:
 	
 	T_STR		m_szName;
 	T_STR		m_szPath;
+	float		m_fAlpha=0.0f;
 	//--------------------------------------------------------------------------------------
 	// 텍스쳐 로딩 및 리소스버퍼 생성
 	//--------------------------------------------------------------------------------------
@@ -19,7 +20,8 @@ public:
 	bool						Apply(ID3D11DeviceContext*    pImmediateContext);
 	bool						Release();
 	void						SetPath(const TCHAR* pPath);
-
+	void			SetAlpha(float Alpha);
+	float			GetAlpha();
 public:
 	Texture(void);
 	virtual ~Texture(void);

@@ -6,6 +6,7 @@
 #include "JH_Tool.h"
 #include "JH_MapForm.h"
 #include "afxdialogex.h"
+#include"TextureMgr.h"
 
 
 // JH_MapForm 대화 상자
@@ -25,6 +26,10 @@ JH_MapForm::JH_MapForm()
 	, m_SplattTexture2(_T(""))
 	, m_SplattTexture3(_T(""))
 	, m_SplattTexture4(_T(""))
+	, m_SplattTex1Alpha(0)
+	, m_SplattTex2Alpha(0)
+	, m_SplattTex3Alpha(0)
+	, m_SplattTex4Alpha(0)
 {
 
 }
@@ -56,6 +61,10 @@ void JH_MapForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT9, m_SplattTexture2);
 	DDX_Text(pDX, IDC_EDIT11, m_SplattTexture3);
 	DDX_Text(pDX, IDC_EDIT12, m_SplattTexture4);
+	DDX_Text(pDX, IDC_EDIT14, m_SplattTex1Alpha);
+	DDX_Text(pDX, IDC_EDIT15, m_SplattTex2Alpha);
+	DDX_Text(pDX, IDC_EDIT16, m_SplattTex3Alpha);
+	DDX_Text(pDX, IDC_EDIT17, m_SplattTex4Alpha);
 }
 
 
@@ -72,6 +81,8 @@ BEGIN_MESSAGE_MAP(JH_MapForm, CFormView)
 	ON_BN_CLICKED(IDOK7, &JH_MapForm::OnSplattTexture2BnClickedOk)
 	ON_BN_CLICKED(IDOK8, &JH_MapForm::OnSplattTexture3BnClickedOk)
 	ON_BN_CLICKED(IDOK9, &JH_MapForm::OnSplattTexture4BnClickedOk)
+//	ON_EN_UPDATE(IDC_EDIT14, &JH_MapForm::OnUpdateSplattTex1)
+	ON_EN_CHANGE(IDC_EDIT14, &JH_MapForm::OnEnChangeEdit14)
 END_MESSAGE_MAP()
 
 
@@ -202,7 +213,7 @@ void JH_MapForm::OnBnClickedOk6()
 	{
 		FileName = dlg.GetPathName();
 		m_SplattTexture1 = FileName;
-		pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture1);
+		m_SplattTex1ID=pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture1);
 		UpdateData(FALSE);
 	}
 }
@@ -214,7 +225,7 @@ void JH_MapForm::OnSplattTexture2BnClickedOk()
 	UpdateData(FALSE);
 	CString FileName;
 
-
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
 	CFileDialog dlg(FALSE, L"bmp|jpg", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST,
 		L"bmp Files(*.bmp)|*.bmp| All Files(*.*)|*.*|", this);
 
@@ -222,6 +233,7 @@ void JH_MapForm::OnSplattTexture2BnClickedOk()
 	{
 		FileName = dlg.GetPathName();
 		m_SplattTexture2 = FileName;
+		m_SplattTex2ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture2);
 		UpdateData(FALSE);
 	}
 }
@@ -233,7 +245,7 @@ void JH_MapForm::OnSplattTexture3BnClickedOk()
 	UpdateData(FALSE);
 	CString FileName;
 
-
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
 	CFileDialog dlg(FALSE, L"bmp|jpg", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST,
 		L"bmp Files(*.bmp)|*.bmp| All Files(*.*)|*.*|", this);
 
@@ -241,6 +253,7 @@ void JH_MapForm::OnSplattTexture3BnClickedOk()
 	{
 		FileName = dlg.GetPathName();
 		m_SplattTexture3 = FileName;
+		m_SplattTex3ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture3);
 		UpdateData(FALSE);
 	}
 }
@@ -253,7 +266,7 @@ void JH_MapForm::OnSplattTexture4BnClickedOk()
 	UpdateData(FALSE);
 	CString FileName;
 
-
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
 	CFileDialog dlg(FALSE, L"bmp|jpg", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST,
 		L"bmp Files(*.bmp)|*.bmp| All Files(*.*)|*.*|", this);
 
@@ -261,6 +274,33 @@ void JH_MapForm::OnSplattTexture4BnClickedOk()
 	{
 		FileName = dlg.GetPathName();
 		m_SplattTexture4 = FileName;
+		m_SplattTex4ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture4);
 		UpdateData(FALSE);
 	}
+}
+
+
+
+
+
+//void JH_MapForm::OnUpdateSplattTex1()
+//{
+//
+//
+//}
+
+
+void JH_MapForm::OnEnChangeEdit14()
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// CFormView::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+	UpdateData(TRUE);
+	
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
+
+	I_Texture.GetPtr(m_SplattTex1ID)->SetAlpha(m_SplattTex1Alpha);
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(TRUE);
 }
