@@ -43,6 +43,19 @@ TCHAR* Sample::SaveFileDlg(TCHAR* szExt, TCHAR* szTitle)
 
 	return szFile;
 }
+bool	 Sample::SaveMapTexture()
+{
+	m_RenderTarget.Begin(m_pImmediateContext.Get(), D3DXVECTOR4(1, 1, 1, 1));
+	if (m_Map != nullptr)
+	{
+
+		m_Map->SetMatrix(nullptr,
+			nullptr,
+			nullptr);
+		m_QuadTree->Render();
+	}
+	return true;
+}
 bool  Sample::SaveMapData()
 {
 	
@@ -52,8 +65,13 @@ bool  Sample::SaveMapData()
 	fp = _tfopen(szFile, _T("wt"));
 	
  
-	_ftprintf(fp, _T("%s\n %s\n %s\n %s\n \n"), L"Map",
-		m_Map->m_TextureFileName, m_Map->m_pNormMapFileName, m_Map->m_ShaderFileName,
+	_ftprintf(fp, _T("%s %s\n"), L"Map",
+		m_Map->m_TextureFileName);
+	_ftprintf(fp,_T("%s %s\n "), L"NorMalMap",
+	m_Map->m_pNormMapFileName);
+	_ftprintf(fp, _T("%s %s\n"), L"Shader",
+		 m_Map->m_ShaderFileName);
+	_ftprintf(fp, _T("%s %s\n"), L"SplattTexture",
 		m_pSplattTextureName);
 
 	_ftprintf(fp, _T("%s \n"), L"SplattTextures");
@@ -652,11 +670,17 @@ bool Sample::Frame()
 	if (m_Map != nullptr)
 	{
 	
-		m_Map->SetMatrix(nullptr,
-			&m_matTopView,
-			&m_matTopProj);
+		//m_Map->SetMatrix(nullptr,
+		//	&m_matTopView,
+		//	&m_matTopProj);
 
-		m_QuadTree->Render();
+		//m_QuadTree->Render();
+
+
+		m_Map->SetMatrix(nullptr,
+			nullptr,
+			nullptr);
+		m_Map->Render();
 	}
 	m_RenderTarget.End(m_pImmediateContext.Get());
 	return true;
@@ -680,8 +704,8 @@ bool Sample::Render()
 		
 		UINT offset = 0;
 		UINT stride = sizeof(D3DXVECTOR3);
-		m_Map->m_dxHelper.m_pContext->PSSetShaderResources(1, 1,&m_Map->m_pTexture->m_pTextureRV);
-		m_Map->m_dxHelper.m_pContext->IASetVertexBuffers(1, 1, &m_Map->m_pTangentVB,&stride,&offset);
+		//m_Map->m_dxHelper.m_pContext->PSSetShaderResources(1, 1,&m_Map->m_pTexture->m_pTextureRV);
+		//m_Map->m_dxHelper.m_pContext->IASetVertexBuffers(1, 1, &m_Map->m_pTangentVB,&stride,&offset);
 		m_Map->m_dxHelper.m_pContext->PSSetConstantBuffers(1, 1, pBuffers);
 		
 
@@ -713,18 +737,17 @@ bool Sample::Render()
 	{
 		//문제있음
 
-		//m_MiniMap.PreRender();
-		//m_pImmediateContext->PSSetShaderResources(0, 1,
-		//	m_RenderTarget.m_pSRV.GetAddressOf());
-		//m_MiniMap.PostRender();
-
+		m_MiniMap.PreRender();
+		m_pImmediateContext->PSSetShaderResources(0, 1,
+			m_RenderTarget.m_pSRV.GetAddressOf());
+		m_MiniMap.PostRender();
 	}
 	m_pImmediateContext->RSSetViewports(1, &m_ViewPort);
 
-	m_DebugLine->SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
-	m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(100, 0, 0), D3DXVECTOR4(1, 0, 0, 1));
-	m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 100, 0), D3DXVECTOR4(0, 1, 0, 1));
-	m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 0, 100), D3DXVECTOR4(0, 0, 1, 1));
+	//m_DebugLine->SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
+	//m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(100, 0, 0), D3DXVECTOR4(1, 0, 0, 1));
+	//m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 100, 0), D3DXVECTOR4(0, 1, 0, 1));
+	//m_DebugLine->Draw(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 0, 100), D3DXVECTOR4(0, 0, 1, 1));
 
 
 

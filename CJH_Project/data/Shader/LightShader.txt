@@ -146,7 +146,7 @@ VS_OUT VS(VS_IN inData)
 	vOut.p = vProj;
 	vOut.n=inData.n;
 	vOut.c=inData.c;
-	vOut.t =inData.t*10;
+	vOut.t =inData.t;//*10;
 	vOut.v= vWorld;
 	float3 fTan=normalize(mul(inData.tan,(float3x3)g_matNorm));
 	float3 B=cross(fTan,inData.n);

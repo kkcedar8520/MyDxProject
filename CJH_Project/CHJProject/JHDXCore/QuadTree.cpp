@@ -344,7 +344,7 @@ void HQuadTree::GetSelectNode(HNode* pNode)
 	
 	if (pNode->m_isLeaf)
 	{
-		FindNearInterSectionNode(pNode, I_Select.m_vIntersection);
+		//FindNearInterSectionNode(pNode, I_Select.m_vIntersection);
 		m_SelectNodeList.push_back(pNode);
 		return;
 	}
@@ -457,7 +457,7 @@ void HQuadTree::CreateIndexList(HNode* pNode)
 bool HQuadTree::Release()
 {
 	SAFE_DEL(m_pRootNode);
-	if(m_pNearPointNode)SAFE_DEL(m_pNearPointNode);
+//	if(m_pNearPointNode)SAFE_DEL(m_pNearPointNode);
 	return true;
 }
 

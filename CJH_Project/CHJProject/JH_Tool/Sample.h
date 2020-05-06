@@ -98,8 +98,9 @@ public:
 	void RunComputeShaderSplatting(UINT nNumViews, ID3D11ShaderResourceView** pShaderResourceView,
 		ID3D11UnorderedAccessView* pUnorderedAccessView, UINT X, UINT Y, UINT Z);
 	//¿˙¿Â
-	TCHAR* SaveFileDlg(TCHAR* szExt, TCHAR* szTitle);
-	bool   SaveMapData();
+	TCHAR*	SaveFileDlg(TCHAR* szExt, TCHAR* szTitle);
+	bool	SaveMapData();
+	bool	SaveMapTexture();
 	//Load
 	bool   LoadMapData(const TCHAR* LoadFile);
 	//OVERRIDE
