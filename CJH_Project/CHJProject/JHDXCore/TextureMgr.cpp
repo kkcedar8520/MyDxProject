@@ -1,5 +1,7 @@
 #include "TextureMgr.h"
 
+
+
 void			Texture::SetAlpha(float Alpha)
 {
 	if (!this) return;
@@ -59,7 +61,8 @@ Texture::Texture(void)
 {
 	SAFE_ZERO(m_pTextureRV);
 	SAFE_ZERO(m_pSamplerState);
-	m_szPath = _T("");
+	m_szPath = _T("NULL");
+	m_szName = _T("NULL");
 }
 
 Texture::~Texture(void)
@@ -69,7 +72,30 @@ void Texture::SetPath(const TCHAR* pPath)
 {
 	m_szPath = pPath;
 }
+T_STR Texture::GetPullPath()
+{
+	if (m_szName == _T("NULL"))
+	{
+		return _T("NULL");
+	}
+	return m_szPath + m_szName;
+}
 
+///// Manager!!
+HRESULT TextureMgr::SaveFile(ID3D11DeviceContext* pContext, T_STR name, ID3D11Texture2D* Texture)
+{
+	HRESULT hr;
+	// 랜더타켓뷰에서 텍스처 파일로 저장	
+	if (Texture != nullptr)
+	{
+		// 랜더타켓 텍스처를 텍스처 파일로 저장
+		if (FAILED(hr = D3DX11SaveTextureToFile(pContext, Texture, D3DX11_IFF_DDS, name.c_str())))
+		{
+			return true;
+		}
+	}
+	return true;
+}
 INT TextureMgr::Add(ID3D11Device*	 pDevice, const TCHAR *pFileName)
 {
 	TCHAR szFileName[MAX_PATH];

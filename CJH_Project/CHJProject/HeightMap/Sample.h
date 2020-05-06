@@ -37,7 +37,7 @@ public:
 	int m_iCellRow;
 	const TCHAR* m_TextureFileName;
 	const TCHAR* m_ShaderFileName;
-	const TCHAR* NormalMapFileName;
+	const TCHAR* m_pNormalMapFileName;
 	float m_fSellDistance;
 	float m_fScaleHeight;
 public:

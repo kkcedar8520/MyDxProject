@@ -20,6 +20,7 @@ public:
 	bool						Apply(ID3D11DeviceContext*    pImmediateContext);
 	bool						Release();
 	void						SetPath(const TCHAR* pPath);
+	T_STR						GetPullPath();
 	void			SetAlpha(float Alpha);
 	float			GetAlpha();
 public:
@@ -44,6 +45,7 @@ public:
 	INT				Add(ID3D11Device*	 pDevice, const TCHAR *pFileName, const TCHAR* szPath);
 	Texture* const	GetPtr(INT iIndex);
 	Texture* const	GetPtr(T_STR strFindName);
+	HRESULT			SaveFile(ID3D11DeviceContext*    pContext, T_STR name, ID3D11Texture2D* Texture);
 	bool			Release();
 public:
 	TextureMgr();

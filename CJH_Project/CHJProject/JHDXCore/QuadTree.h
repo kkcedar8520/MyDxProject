@@ -38,6 +38,8 @@ public:
 	JH_Map* m_pMap;
 	JHCamera* m_pCamera;
 	vector<HNode*>  m_SelectNodeList;
+	HNode*	m_pNearPointNode;
+	float	m_fdistance;
 
 	vector<HNode*>  m_DrawNodeList;
 	vector<HNode*>  m_DrawObjNodeList;
@@ -62,6 +64,7 @@ public:
 	bool Draw(HNode* pNode, ID3D11DeviceContext* pContext);
 public:
 	bool FindInterSection();
+	void FindNearInterSectionNode(HNode* pNode, D3DXVECTOR3 vInterSection);
 public:
 	HQuadTree();
 	virtual ~HQuadTree();

@@ -8,41 +8,197 @@
 
 
 #pragma warning( disable:4005 )
+TCHAR* Sample::SaveFileDlg(TCHAR* szExt, TCHAR* szTitle)
+{
+	OPENFILENAME    ofn;
+	TCHAR            szFile[256], szFileTitle[256];
+	static TCHAR     *szFilter;
 
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
+	_tcscpy_s(szFile, _T("*."));
+	_tcscat_s(szFile, szExt);
+	_tcscat_s(szFile, _T("\0"));
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = GetActiveWindow();
+	ofn.lpstrFilter = szFilter;
+	ofn.lpstrCustomFilter = NULL;
+	ofn.nMaxCustFilter = 0L;
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFileTitle = szFileTitle;
+	ofn.nMaxFileTitle = sizeof(szFileTitle);
+	ofn.lpstrInitialDir = NULL;
+	ofn.lpstrTitle = szTitle;
+	ofn.Flags = 0L;
+	ofn.nFileOffset = 0;
+	ofn.nFileExtension = 0;
+	ofn.lpstrDefExt = szExt;
+
+	if (!GetSaveFileName(&ofn)) //GetOpenFileName
+	{
+		return NULL;
+	}
+
+	return szFile;
+}
+bool  Sample::SaveMapData()
+{
+	
+	FILE* fp;
+	TCHAR  szFile[256] = { 0, };
+	_tcscpy(szFile, SaveFileDlg(_T("Map"), _T("Export")));
+	fp = _tfopen(szFile, _T("wt"));
+	
+ 
+	_ftprintf(fp, _T("%s\n %s\n %s\n %s\n \n"), L"Map",
+		m_Map->m_TextureFileName, m_Map->m_pNormMapFileName, m_Map->m_ShaderFileName,
+		m_pSplattTextureName);
+
+	_ftprintf(fp, _T("%s \n"), L"SplattTextures");
+	for (int i = 0; i < m_Map->m_vSplattTextureList.size(); i++)
+	{
+		if (!m_Map->m_vSplattTextureList[i])break;
+	
+		_ftprintf(fp, _T("%d %s"),i,m_Map->m_vSplattTextureList[i]->GetPullPath().c_str());
+	}
+
+	_ftprintf(fp, _T("%s %d\n %s\n"), L"VertexNum",m_Map->m_VertexData.size(),L"VertexHegiht");
+	int layer = 0;
+	for (int  iVertex = 0; iVertex < m_Map->m_VertexData.size(); iVertex++)
+	{
+		
+		_ftprintf(fp, _T("%10.4f"),m_Map->m_VertexData[iVertex].p.y);
+		layer++;
+		if (layer == 10){_ftprintf(fp, _T("\n")); layer = 0;}
+
+	}
+
+	
+
+	fclose(fp);
+	return true;
+}
+bool  Sample::LoadMapData(const TCHAR* LoadFile)
+{
+	FILE* fp;
+	TCHAR  szFile[256] = { 0, };
+
+	fp = _tfopen(LoadFile, _T("rt"));
+
+	if (fp==nullptr)
+	{
+		return false;
+	}
+
+	//Map Basic Text Data
+	_fgetts(m_pBuffer, 256, fp);
+	_stscanf(m_pBuffer, _T("%s\n %s\n %s\n %s\n \n"),m_pString,
+		m_LoadMapData.m_BaseTextureFile, m_LoadMapData.m_NormalMapFile,m_LoadMapData.m_ShaderFile,
+		m_LoadMapData.m_pSplattAlphaTextureFile);
+
+	//Splatt Texture
+	_fgetts(m_pBuffer, 256, fp);
+	_stscanf(m_pBuffer, _T("%s \n"), m_pString);
+	for (int i = 0; i < m_Map->m_vSplattTextureList.size(); i++)
+	{
+		if (!m_Map->m_vSplattTextureList[i])break;
+
+		
+		_fgetts(m_pBuffer, 256, fp);
+		_stscanf(m_pBuffer, _T("%d %s"), i, m_LoadMapData.m_pSplattTextureFile[i]);
+	}
+
+	// Vertex Height Data
+	_fgetts(m_pBuffer, 256, fp);
+	_stscanf(m_pBuffer, _T("%s %d\n %s\n"),m_pString,&m_iTemp, m_pString);
+	int layer = 0;
+	for (int iVertex = 0; iVertex < m_iTemp; iVertex++)
+	{
+
+		_fgetts(m_pBuffer, 256, fp);
+		_stscanf(m_pBuffer, _T("%10.4f"),m_Map->m_vHeightList[iVertex]);
+		layer++;
+		if (layer == 10) {
+			_fgetts(m_pBuffer, 256, fp);
+			_stscanf(m_pBuffer, _T("\n")); layer = 0; }
+
+	}
+	return true;
+}
 void 	Sample::RunComputeShaderSplatting(UINT nNumViews,ID3D11ShaderResourceView** pShaderResourceView,
 	ID3D11UnorderedAccessView* pUnorderedAccessView, UINT X, UINT Y, UINT Z)
 {
 	
 
-	m_pImmediateContext->CSSetShader(m_pCS.Get(), NULL, 0);
+	//m_pImmediateContext->CSSetShader(m_pCS.Get(), NULL, 0);
 
 
-	m_pImmediateContext->CSSetShaderResources(0, 1,m_pReadSrv.GetAddressOf());
-	m_pImmediateContext->CSSetShaderResources(1, 1, m_pBufSrv.GetAddressOf());
+	//m_pImmediateContext->CSSetShaderResources(0, 1,m_pReadSrv.GetAddressOf());
+	//m_pImmediateContext->CSSetShaderResources(1, 1, m_pBufSrv.GetAddressOf());
 
-	m_pImmediateContext->CSSetUnorderedAccessViews(0, 1,&pUnorderedAccessView, NULL);
+	//m_pImmediateContext->CSSetUnorderedAccessViews(0, 1,&pUnorderedAccessView, NULL);
 
-	m_pImmediateContext->Dispatch(X, Y, Z);
+	//m_pImmediateContext->Dispatch(X, Y, Z);
 
-	m_pImmediateContext->CSSetShader(NULL, NULL, 0);
+	//m_pImmediateContext->CSSetShader(NULL, NULL, 0);
 
 
-	// CS 技泼 秦力
-	ID3D11UnorderedAccessView* ppUAViewNULL[1] = { NULL };
-	m_pImmediateContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, NULL);
+	//// CS 技泼 秦力
+	//ID3D11UnorderedAccessView* ppUAViewNULL[1] = { NULL };
+	//m_pImmediateContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, NULL);
 
-	ID3D11ShaderResourceView* ppSRVNULL[2] = { NULL, NULL };
-	m_pImmediateContext->CSSetShaderResources(0, 2, ppSRVNULL);
+	//ID3D11ShaderResourceView* ppSRVNULL[2] = { NULL, NULL };
+	//m_pImmediateContext->CSSetShaderResources(0, 2, ppSRVNULL);
 
-	ID3D11Buffer* ppCBNULL[1] = { NULL };
-	m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);\
+	//ID3D11Buffer* ppCBNULL[1] = { NULL };
+	//m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);\
 
+	//
+	////m_pImmediateContext->CopyResource((ID3D11Resource*)m_pReadSrv.Get(), (ID3D11Resource*)m_pUAV.Get());
+
+	////m_pSplSrv.Reset();
+	////m_pSplSrv.Attach(DX::CreateShaderResourceView(m_pd3dDevice.Get(), pSrcTexture.Get()));
+
+}
+HRESULT	Sample::CreateSplattingTexture(HNode* pNode)
+{
+	HRESULT hr;
+
+	D3D11_TEXTURE2D_DESC td;
+
+	pDestTexture.Reset();
+	pSrcTexture.Reset();
+	ZeroMemory(&td, sizeof(td));
 	
-	//m_pImmediateContext->CopyResource((ID3D11Resource*)m_pReadSrv.Get(), (ID3D11Resource*)m_pUAV.Get());
+	UINT WIDTH = pNode->m_dwCorner[1]- pNode->m_dwCorner[0]  ;
+	UINT HEIGHT = (UINT)((pNode->m_dwCorner[2] - pNode->m_dwCorner[0]) / WIDTH)-1;
+	td.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+	td.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	td.Width = WIDTH * 8;
+	td.Height = HEIGHT * 8;
+	td.Usage = D3D11_USAGE_STAGING;
+	td.MipLevels = 1;
+	td.ArraySize = 1;
+	td.SampleDesc.Count = 1;
+	td.SampleDesc.Quality = 0;
+	td.MiscFlags = 0;
 
-	//m_pSplSrv.Reset();
-	//m_pSplSrv.Attach(DX::CreateShaderResourceView(m_pd3dDevice.Get(), pSrcTexture.Get()));
+	if (FAILED(hr = m_pd3dDevice->CreateTexture2D(&td, NULL, &pDestTexture)))
+	{
+		return hr;
+	}
 
+
+
+	td.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	td.Usage = D3D11_USAGE_DEFAULT;
+	if (FAILED(hr = m_pd3dDevice->CreateTexture2D(&td, NULL, &pSrcTexture)))
+	{
+		return hr;
+	}
 }
 HRESULT	Sample::CreateSplattingTexture()
 {
@@ -56,8 +212,8 @@ HRESULT	Sample::CreateSplattingTexture()
 
 	td.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 	td.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	td.Width = (m_Map->m_iRowNum-1)*4;
-	td.Height = (m_Map->m_iColumNum-1)*4;
+	td.Width = (m_Map->m_iRowNum-1)*16;
+	td.Height = (m_Map->m_iColumNum-1)*16;
 	td.Usage = D3D11_USAGE_STAGING;
 	td.MipLevels = 1;
 	td.ArraySize = 1;
@@ -83,47 +239,47 @@ HRESULT	Sample::CreateSplattingTexture()
 
 
 
-	
+	return hr;
 }
 HRESULT Sample::CreateCSTexture()
 {
 
 	
 	HRESULT hr = S_OK;
-	//before dispatch
-	D3D11_TEXTURE2D_DESC td;
-	ZeroMemory(&td, sizeof(td));
-	td.Width = m_Map->m_iRowNum - 1;
-	td.Height = m_Map->m_iColumNum - 1;
-	td.MipLevels = 1;
-	td.ArraySize = 1;
-	td.SampleDesc.Count = 1;
-	td.SampleDesc.Quality = 0;
-	td.Usage = D3D11_USAGE_DEFAULT;
-	td.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
-	td.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	hr = m_pd3dDevice->CreateTexture2D(&td, NULL, pUAVTexture.GetAddressOf());
+	////before dispatch
+	//D3D11_TEXTURE2D_DESC td;
+	//ZeroMemory(&td, sizeof(td));
+	//td.Width = m_Map->m_iRowNum - 1;
+	//td.Height = m_Map->m_iColumNum - 1;
+	//td.MipLevels = 1;
+	//td.ArraySize = 1;
+	//td.SampleDesc.Count = 1;
+	//td.SampleDesc.Quality = 0;
+	//td.Usage = D3D11_USAGE_DEFAULT;
+	//td.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+	//td.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	//hr = m_pd3dDevice->CreateTexture2D(&td, NULL, pUAVTexture.GetAddressOf());
 
-	D3D11_UNORDERED_ACCESS_VIEW_DESC viewDescUAV;
-	ZeroMemory(&viewDescUAV, sizeof(viewDescUAV));
-	viewDescUAV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	viewDescUAV.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	viewDescUAV.Texture2D.MipSlice = 0;
- 	hr = m_pd3dDevice->CreateUnorderedAccessView(pUAVTexture.Get(), &viewDescUAV, m_pUAV.GetAddressOf());
+	//D3D11_UNORDERED_ACCESS_VIEW_DESC viewDescUAV;
+	//ZeroMemory(&viewDescUAV, sizeof(viewDescUAV));
+	//viewDescUAV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	//viewDescUAV.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	//viewDescUAV.Texture2D.MipSlice = 0;
+ //	hr = m_pd3dDevice->CreateUnorderedAccessView(pUAVTexture.Get(), &viewDescUAV, m_pUAV.GetAddressOf());
 
-	//the getSRV function after dispatch.
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(srvDesc));
-	srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	hr = m_pd3dDevice->CreateShaderResourceView(pUAVTexture.Get(), &srvDesc, m_pReadSrv.GetAddressOf());
-
-
+	////the getSRV function after dispatch.
+	//D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	//ZeroMemory(&srvDesc, sizeof(srvDesc));
+	//srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	//srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	//srvDesc.Texture2D.MipLevels = 1;
+	//hr = m_pd3dDevice->CreateShaderResourceView(pUAVTexture.Get(), &srvDesc, m_pReadSrv.GetAddressOf());
 
 
-	m_pStructureBF.Attach(DX::CreateStructureBuffer(m_pd3dDevice.Get(), &m_vBuf0[0], 1, sizeof(BufType)));
-	m_pBufSrv.Attach(DX::CreateBufferSrv(m_pd3dDevice.Get(), m_pStructureBF.Get()));
+
+
+	//m_pStructureBF.Attach(DX::CreateStructureBuffer(m_pd3dDevice.Get(), &m_vBuf0[0], 1, sizeof(BufType)));
+	//m_pBufSrv.Attach(DX::CreateBufferSrv(m_pd3dDevice.Get(), m_pStructureBF.Get()));
 
 
 	return hr;
@@ -140,23 +296,26 @@ HRESULT Sample::MapSplatting(SPHERE Sphere)
 	D3D11_MAPPED_SUBRESOURCE MapSrc;
 	
 	static int i = 0;
+	
+	D3D11_TEXTURE2D_DESC td;
+	pDestTexture->GetDesc(&td);
 	if (SUCCEEDED(m_pImmediateContext->Map((ID3D11Resource*)pDestTexture.Get(), NULL, D3D11_MAP_READ_WRITE, NULL, &MapSrc)))
 	{
 
 		UCHAR* pTexcell = (UCHAR*)MapSrc.pData;
-		for (int iRow = 0; iRow < m_Map->m_iRowNum*4; iRow++)
+		for (int iRow = 0; iRow < m_Map->m_iRowNum*16; iRow++)
 		{
 			int irowStart = MapSrc.RowPitch*iRow;
-			for (int iCol = 0; iCol < m_Map->m_iColumNum*4; iCol++)
+			for (int iCol = 0; iCol < m_Map->m_iColumNum*16; iCol++)
 			{
 				float fDistance = sqrt((Sphere.vCenter.x - iCol)*(Sphere.vCenter.x - iCol) +
 					(Sphere.vCenter.z - iRow)*(Sphere.vCenter.z - iRow));
 				if (fDistance <= Sphere.Radius)
 				{
-					pTexcell[irowStart + iCol * 4]=255;
-					pTexcell[irowStart + iCol * 4+1] = 150.0f;
-					pTexcell[irowStart + iCol * 4+2] = 100.0f;
-					pTexcell[irowStart + iCol * 4+3] = 150.0f;
+					pTexcell[irowStart + iCol * 4]=m_Map->m_vSplattTextureList[0]->GetAlpha();
+					pTexcell[irowStart + iCol * 4+1] = m_Map->m_vSplattTextureList[1]->GetAlpha();
+					pTexcell[irowStart + iCol * 4+2] = m_Map->m_vSplattTextureList[2]->GetAlpha();
+					pTexcell[irowStart + iCol * 4+3] = m_Map->m_vSplattTextureList[3]->GetAlpha();
 
 				}
 
@@ -332,8 +491,8 @@ bool Sample::CreateMap(int iWidth,
 	return true;
 }
 int Sample::CreateObj(const TCHAR* pFileName, D3DXMATRIX& m_matWorld)
-{
 
+{
 	static int i;
 	if (pFileName == nullptr)
 	{
@@ -466,12 +625,17 @@ bool Sample::Frame()
 			{
 				GetNearPoint();
 				SPHERE sphere;
-				D3DXVECTOR3 vPoint = D3DXVECTOR3(m_NearPoint.x*4 + ((m_Map->m_iRowNum-1)*4 / 2.0f),
-					0, -(m_NearPoint.z*4) + ((m_Map->m_iColumNum-1)*4/ 2.0f));
+				D3DXVECTOR3 vPoint = D3DXVECTOR3(m_NearPoint.x*16 + ((m_Map->m_iRowNum-1)*16 / 2.0f),
+					0, -(m_NearPoint.z*16) + ((m_Map->m_iColumNum-1)*16/ 2.0f));
 				sphere.vCenter = vPoint;
 				sphere.Radius = 2;
+				m_QuadTree->GetSelectNode(m_QuadTree->m_pRootNode);
+				
+			
+				//CreateSplattingTexture(m_QuadTree->m_pNearPointNode);
 				MapSplatting(sphere);
 
+				
 				//m_pImmediateContext->PSSetShaderResources(3, 1, &m_pTexture->m_pTextureRV);
 			}
 		}
@@ -506,7 +670,7 @@ bool Sample::Render()
 		m_Map->SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
 		ID3D11Buffer*               pBuffers[3];
 		pBuffers[0] = I_LIGHT_MGR.m_pLightConstantBuffer[0].Get();
-
+		LightConstantBuffer mcb = I_LIGHT_MGR.m_cbLight;
 		m_Map->UpdateConstantBuffer(I_LIGHT_MGR.m_pLightConstantBuffer[0].Get(), &I_LIGHT_MGR.m_cbLight);
 
 
@@ -596,6 +760,7 @@ Sample::Sample()
 	bAttach = false;
 	bSplatting = false;
 	
+	m_pSplattTextureName = nullptr;
 	CurrentObjIndex = -1;
 }
 

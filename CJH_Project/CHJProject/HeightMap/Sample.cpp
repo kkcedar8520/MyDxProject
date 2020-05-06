@@ -89,6 +89,7 @@ HRESULT  JH_Map::Load(ID3D11Device* pD3D11Device, ID3D11DeviceContext* pD3D11Dev
 	 m_iVertices = m_iColumNum * m_iRowNum;
 	 m_TextureFileName= m_MapDesc.TextureFileName;
 	 m_ShaderFileName= m_MapDesc.ShaderFileName;
+	 m_TextureFileName
 	 m_fSellDistance= m_MapDesc.fSellDistance;
 	 m_fScaleHeight= m_MapDesc.fScaleHeight;
 

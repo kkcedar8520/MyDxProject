@@ -8,6 +8,18 @@
 #include"JHShapeBox.h"
 #include"MaxObj.h"
 #include"TextureMgr.h"
+struct LoadMap
+{
+	T_STR m_BaseTextureFile;
+	T_STR m_NormalMapFile;
+	T_STR m_ShaderFile;
+	T_STR m_pSplattAlphaTextureFile;
+
+	T_STR m_pSplattTextureFile[4];
+
+	//Splatt Texture
+
+};
 struct BufType
 {
 	D3DXVECTOR3 vPickPos;
@@ -51,6 +63,13 @@ public:
 	
 	D3D11_VIEWPORT	m_vp;
 	float m_fTimer;
+	//Save
+	const TCHAR*			m_pSplattTextureName;
+	//Load
+	TCHAR  m_pBuffer[256];
+	TCHAR  m_pString[256];
+	int    m_iTemp;
+	LoadMap m_LoadMapData;
 public:
 	shared_ptr<JH_ShapeLine>m_DebugLine;
 	shared_ptr<JH_Map>		m_Map;
@@ -70,12 +89,19 @@ public:
 	int CreateObj(const TCHAR* pFileName,D3DXMATRIX& m_matWorld);
 	void MapUpDown(SPHERE Sphere);
 	//
+
 	HRESULT MapSplatting(SPHERE Sphere);
 	HRESULT CreateCSTexture();
 	HRESULT	CreateSplattingTexture();
+	HRESULT	CreateSplattingTexture(HNode* pNode);
 	void GetNearPoint();
 	void RunComputeShaderSplatting(UINT nNumViews, ID3D11ShaderResourceView** pShaderResourceView,
 		ID3D11UnorderedAccessView* pUnorderedAccessView, UINT X, UINT Y, UINT Z);
+	//¿˙¿Â
+	TCHAR* SaveFileDlg(TCHAR* szExt, TCHAR* szTitle);
+	bool   SaveMapData();
+	//Load
+	bool   LoadMapData(const TCHAR* LoadFile);
 	//OVERRIDE
 	bool Init();
 	bool Frame();

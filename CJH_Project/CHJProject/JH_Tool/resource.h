@@ -5,6 +5,7 @@
 #define IDOK2                           3
 #define IDOK3                           4
 #define IDOK4                           5
+#define IDOK10                          6
 #define IDOK5                           7
 #define IDOK6                           10
 #define IDOK7                           11
@@ -101,9 +102,12 @@
 #define IDC_EDIT14                      1014
 #define IDC_EDIT13                      1015
 #define IDC_EDIT15                      1016
+#define IDC_EDIT18                      1017
 #define IDC_SCROLLBAR2                  1018
+#define IDC_EDIT19                      1019
 #define IDC_EDIT16                      1020
 #define IDC_EDIT17                      1021
+#define IDC_EDIT20                      1022
 #define ID_TOOL_CREATEMAP               32771
 #define ID_TOOL_LOADOBJECT              32772
 

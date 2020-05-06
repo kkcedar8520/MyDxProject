@@ -95,7 +95,7 @@ bool LightMgr::Init()
 		m_cbLight.vLightDirection[i].x			= m_LightObjList[i].m_Info.LightDir.x;
 		m_cbLight.vLightDirection[i].y			= m_LightObjList[i].m_Info.LightDir.y;
 		m_cbLight.vLightDirection[i].z			= m_LightObjList[i].m_Info.LightDir.z;
-		m_cbLight.vLightDirection[i].z			= m_LightObjList[i].m_Info.Attenuation;
+		m_cbLight.vLightDirection[i].w			= m_LightObjList[i].m_Info.Attenuation;
 		m_cbLight.vLightPos[i].x				= m_LightObjList[i].m_Info.LightPos.x;//W:е╦ют
 		m_cbLight.vLightPos[i].y				= m_LightObjList[i].m_Info.LightPos.y;
 		m_cbLight.vLightPos[i].z				= m_LightObjList[i].m_Info.LightPos.z;

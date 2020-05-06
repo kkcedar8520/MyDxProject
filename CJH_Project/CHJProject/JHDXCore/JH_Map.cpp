@@ -2,14 +2,14 @@
 
 //툴관련 함수
 
-INT JH_Map::AddSplattTexture(const TCHAR* pFileName, float Alpha)
+INT JH_Map::AddSplattTexture(const TCHAR* pFileName,int Num, float Alpha)
 {
 	if (!this) return -1;
 	int index=I_Texture.Add(m_dxHelper.m_pd3dDevice, pFileName);
 
-	m_vTextureList.push_back(I_Texture.GetPtr(index));
+	m_vSplattTextureList[Num-1]=(I_Texture.GetPtr(index));
 
-	return true;
+	return index;
 }
 // Base Function
 bool	JH_Map::UpdateBuffer()
@@ -298,7 +298,7 @@ HRESULT  JH_Map::Load(ID3D11Device* pD3D11Device, ID3D11DeviceContext* pD3D11Dev
 	m_ShaderFileName = m_MapDesc.ShaderFileName;
 	m_fCellDistance = m_MapDesc.fSellDistance;
 	m_fScaleHeight = m_MapDesc.fScaleHeight;
-
+	m_vSplattTextureList.resize(4);
 
 
 	if (!Create(pD3D11Device, pD3D11DeviceContext, m_MapDesc.ShaderFileName, m_MapDesc.TextureFileName))

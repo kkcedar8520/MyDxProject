@@ -56,4 +56,13 @@ public:
 	int m_SplattTex4ID;
 	//afx_msg void OnUpdateSplattTex1();
 	afx_msg void OnEnChangeEdit14();
+	afx_msg void OnEnChangeEdit15();
+	afx_msg void OnEnChangeEdit16();
+	afx_msg void OnEnChangeEdit17();
+	afx_msg void OnSaveMapData();
+	afx_msg void OnLoadMapData();
+	CString m_SaveFileName;
+	CString m_LoadFileName;
+	CString m_SplattTexture;
+	afx_msg void OnSplattFile20();
 };

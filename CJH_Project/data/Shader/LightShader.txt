@@ -41,15 +41,15 @@ cbuffer cb_Data : register(b0)
 };
 cbuffer cb_Light : register(b1)
 {
-	float4 vAmbinentLightColor[g_iLightNum]: packoffset(c0);
-	float4 vDiffuseLightColor[g_iLightNum]: packoffset(c2);
-	float4 vSpecularLightColor[g_iLightNum]: packoffset(c4);
-	float4 vSpotLightColor[g_iLightNum]: packoffset(c6);		
-	float4 vLightDirection[g_iLightNum]: packoffset(c8);
-	float4 vLightPos[g_iLightNum]: packoffset(c10);
-	float4 vEyeDirection[g_iLightNum]: packoffset(c12);
-	float4 vEyePos[g_iLightNum]: packoffset(c14);
-	float4 vSpotLight[g_iLightNum]: packoffset(c16);
+	float4 vAmbinentLightColor[g_iLightNum];
+	float4 vDiffuseLightColor[g_iLightNum];
+	float4 vSpecularLightColor[g_iLightNum];
+	float4 vSpotLightColor[g_iLightNum];
+	float4 vLightDirection[g_iLightNum];
+	float4 vLightPos[g_iLightNum];
+	float4 vEyeDirection[g_iLightNum];
+	float4 vEyePos[g_iLightNum];
+	float4 vSpotLight[g_iLightNum];
 	
 };
 
@@ -192,9 +192,9 @@ struct PS_OUT
 PS_OUT PS(PS_IN inData)
 {
 	PS_OUT vOut;
-	float4 vFinal = g_txDiffuseA.Sample(g_Sample0, inData.t);	
+	float4 vBase = g_txDiffuseA.Sample(g_Sample0, inData.t);	
 	float4 normal = g_txDiffuseB.Sample(g_Sample0, inData.t);	
-	float4 vAlpha=g_SplattingAlpha.Sample(g_Sample0,inData.t);
+	float4 vAlpha=g_SplattingAlpha.Sample(g_Sample0,inData.t/10);
 
 	float4 vTexture1=g_SplatTex1.Sample(g_Sample0,inData.t);
 	float4 vTexture2=g_SplatTex2.Sample(g_Sample0,inData.t);
@@ -209,17 +209,19 @@ PS_OUT PS(PS_IN inData)
 			+ComputeSpotLight(inData.v,inData.n.xyz));*/
 	
 	
-	//float4 vFinalColor=float4(inData.n.x,inData.n.y,inData.n.z,1);//vFinal*Diffuse(inData.n);
-
-
-
-	//vFinalColor = lerp(vFinalColor,vTexture1, vAlpha.r);
-	//vFinalColor = lerp(vFinalColor,vTexture2, vAlpha.g);
-	//vFinalColor = lerp(vFinalColor,vTexture3, vAlpha.b);
-	//vFinalColor = lerp(vFinalColor,vTexture4, vAlpha.a);
-	//vOut.c=vFinalColor;
 	
-	vOut.c=vLightDirection[0];//Diffuse(inData.n.xyz);
+
+
+	vBase = lerp(vBase,vTexture1, vAlpha.r);
+	vBase = lerp(vBase,vTexture2, vAlpha.g);
+	vBase = lerp(vBase,vTexture3, vAlpha.b);
+	vBase = lerp(vBase,vTexture4, vAlpha.a);
+
+	float4 vFinalColor=vBase*(Diffuse(inData.n)+Diffuse(normal.xyz));
+
+	vOut.c=vFinalColor;
+	
+
 	vOut.c.a=1.0f;
 
 	return vOut;

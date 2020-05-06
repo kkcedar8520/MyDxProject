@@ -30,6 +30,9 @@ JH_MapForm::JH_MapForm()
 	, m_SplattTex2Alpha(0)
 	, m_SplattTex3Alpha(0)
 	, m_SplattTex4Alpha(0)
+	, m_SaveFileName(_T(""))
+	, m_LoadFileName(_T(""))
+	, m_SplattTexture(_T(""))
 {
 
 }
@@ -65,6 +68,9 @@ void JH_MapForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT15, m_SplattTex2Alpha);
 	DDX_Text(pDX, IDC_EDIT16, m_SplattTex3Alpha);
 	DDX_Text(pDX, IDC_EDIT17, m_SplattTex4Alpha);
+	DDX_Text(pDX, IDC_EDIT18, m_SaveFileName);
+	DDX_Text(pDX, IDC_EDIT19, m_LoadFileName);
+	DDX_Text(pDX, IDC_EDIT20, m_SplattTexture);
 }
 
 
@@ -83,6 +89,12 @@ BEGIN_MESSAGE_MAP(JH_MapForm, CFormView)
 	ON_BN_CLICKED(IDOK9, &JH_MapForm::OnSplattTexture4BnClickedOk)
 //	ON_EN_UPDATE(IDC_EDIT14, &JH_MapForm::OnUpdateSplattTex1)
 	ON_EN_CHANGE(IDC_EDIT14, &JH_MapForm::OnEnChangeEdit14)
+	ON_EN_CHANGE(IDC_EDIT15, &JH_MapForm::OnEnChangeEdit15)
+	ON_EN_CHANGE(IDC_EDIT16, &JH_MapForm::OnEnChangeEdit16)
+	ON_EN_CHANGE(IDC_EDIT17, &JH_MapForm::OnEnChangeEdit17)
+	ON_BN_CLICKED(IDOK3, &JH_MapForm::OnSaveMapData)
+	ON_BN_CLICKED(IDOK10, &JH_MapForm::OnLoadMapData)
+	ON_EN_CHANGE(IDC_EDIT20, &JH_MapForm::OnSplattFile20)
 END_MESSAGE_MAP()
 
 
@@ -213,7 +225,7 @@ void JH_MapForm::OnBnClickedOk6()
 	{
 		FileName = dlg.GetPathName();
 		m_SplattTexture1 = FileName;
-		m_SplattTex1ID=pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture1);
+		m_SplattTex1ID=pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture1,1);
 		UpdateData(FALSE);
 	}
 }
@@ -233,7 +245,7 @@ void JH_MapForm::OnSplattTexture2BnClickedOk()
 	{
 		FileName = dlg.GetPathName();
 		m_SplattTexture2 = FileName;
-		m_SplattTex2ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture2);
+		m_SplattTex2ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture2,2);
 		UpdateData(FALSE);
 	}
 }
@@ -253,7 +265,7 @@ void JH_MapForm::OnSplattTexture3BnClickedOk()
 	{
 		FileName = dlg.GetPathName();
 		m_SplattTexture3 = FileName;
-		m_SplattTex3ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture3);
+		m_SplattTex3ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture3,3);
 		UpdateData(FALSE);
 	}
 }
@@ -274,7 +286,7 @@ void JH_MapForm::OnSplattTexture4BnClickedOk()
 	{
 		FileName = dlg.GetPathName();
 		m_SplattTexture4 = FileName;
-		m_SplattTex4ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture4);
+		m_SplattTex4ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture4,4);
 		UpdateData(FALSE);
 	}
 }
@@ -298,9 +310,90 @@ void JH_MapForm::OnEnChangeEdit14()
 	// 이 알림 메시지를 보내지 않습니다.
 	UpdateData(TRUE);
 	
-	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
+
 
 	I_Texture.GetPtr(m_SplattTex1ID)->SetAlpha(m_SplattTex1Alpha);
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(TRUE);
+}
+
+
+void JH_MapForm::OnEnChangeEdit15()
+{
+	UpdateData(TRUE);
+
+
+
+	I_Texture.GetPtr(m_SplattTex2ID)->SetAlpha(m_SplattTex2Alpha);
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(TRUE);
+}
+
+
+void JH_MapForm::OnEnChangeEdit16()
+{
+	UpdateData(TRUE);
+
+	
+
+	I_Texture.GetPtr(m_SplattTex3ID)->SetAlpha(m_SplattTex3Alpha);
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(TRUE);
+}
+
+
+void JH_MapForm::OnEnChangeEdit17()
+{
+	UpdateData(TRUE);
+
+	
+
+	I_Texture.GetPtr(m_SplattTex4ID)->SetAlpha(m_SplattTex4Alpha);
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(TRUE);
+}
+
+
+void JH_MapForm::OnSaveMapData()
+{
+	UpdateData(FALSE);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
+	I_Texture.SaveFile(pApp->m_Sample.m_pImmediateContext.Get(),
+		(T_STR)m_SplattTexture,
+		pApp->m_Sample.pSrcTexture.Get());
+
+	pApp->m_Sample.SaveMapData();
+}
+
+
+void JH_MapForm::OnLoadMapData()
+{
+	UpdateData(FALSE);
+	CString FileName;
+
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
+	CFileDialog dlg(FALSE, L"bmp|jpg", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST,
+		L"Map Files(*.Map)|*.Map| All Files(*.*)|*.*|", this);
+
+	if (dlg.DoModal() == IDOK)
+	{
+		FileName = dlg.GetPathName();
+		m_LoadFileName = FileName;
+		pApp->m_Sample.LoadMapData(m_LoadFileName);
+		UpdateData(FALSE);
+	}
+}
+
+
+void JH_MapForm::OnSplattFile20()
+{
+	UpdateData(TRUE);
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
+	if (pApp->m_Sample.pSrcTexture)
+	{
+		
+		pApp->m_Sample.m_pSplattTextureName = m_SplattTexture;
+	}
 	UpdateData(TRUE);
 }

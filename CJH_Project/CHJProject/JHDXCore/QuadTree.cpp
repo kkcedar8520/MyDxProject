@@ -341,14 +341,27 @@ void HQuadTree::GetSelectNode(HNode* pNode)
 {
 	if (pNode == nullptr) return;
 	if (I_Select.AABBtoRay(&pNode->m_Box) == false) return;
+	
 	if (pNode->m_isLeaf)
 	{
+		FindNearInterSectionNode(pNode, I_Select.m_vIntersection);
 		m_SelectNodeList.push_back(pNode);
 		return;
 	}
 	for (int iNode = 0; iNode < 4; iNode++)
 	{
 		GetSelectNode(pNode->m_pChild[iNode]);
+	}
+}
+void HQuadTree::FindNearInterSectionNode(HNode* pNode, D3DXVECTOR3 vInterSection)
+{
+	
+	float distance = D3DXVec3Length(&(vInterSection - m_pCamera->m_vPos));
+	
+	if (m_fdistance>distance)
+	{
+		m_fdistance = distance;
+		m_pNearPointNode = pNode;
 	}
 }
 bool HQuadTree::Frame()
@@ -363,10 +376,12 @@ bool HQuadTree::Render()
 
 	m_pMap->PreRender();
 
-
-	for (int i=0; i<m_pMap->m_vTextureList.size();i++)
+	
+	
+	for (int i=0; i<m_pMap->m_vSplattTextureList.size();i++)
 	{
-		m_pMap->m_dxHelper.m_pContext->PSSetShaderResources(3+i,1,&m_pMap->m_vTextureList[i]->m_pTextureRV);
+		if (!m_pMap->m_vSplattTextureList[i]) break;
+		m_pMap->m_dxHelper.m_pContext->PSSetShaderResources(3+i,1,&m_pMap->m_vSplattTextureList[i]->m_pTextureRV);
 	}
 
 
@@ -442,7 +457,7 @@ void HQuadTree::CreateIndexList(HNode* pNode)
 bool HQuadTree::Release()
 {
 	SAFE_DEL(m_pRootNode);
-
+	if(m_pNearPointNode)SAFE_DEL(m_pNearPointNode);
 	return true;
 }
 
@@ -503,7 +518,9 @@ void HQuadTree::VisibleNode(HNode* pNode)
 HQuadTree::HQuadTree()
 {
 	float m_fTimer = 0.0f;
+	m_fdistance = 100000.0f;
 	m_pRootNode = nullptr;
+	m_pNearPointNode = nullptr;
 }
 HQuadTree::~HQuadTree()
 {
