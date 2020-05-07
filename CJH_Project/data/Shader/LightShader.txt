@@ -52,7 +52,10 @@ cbuffer cb_Light : register(b1)
 	float4 vSpotLight[g_iLightNum];
 	
 };
-
+cbuffer cb_MapSub : register(b2)
+{
+	float4	vSubData; 
+};
 float4 Diffuse(float3 vNormal)
 {
 	 float4 fIntesity=max(0,dot(vNormal,normalize(-vLightDirection[0].xyz)));
@@ -146,7 +149,7 @@ VS_OUT VS(VS_IN inData)
 	vOut.p = vProj;
 	vOut.n=inData.n;
 	vOut.c=inData.c;
-	vOut.t =inData.t;//*10;
+	vOut.t =inData.t*10;
 	vOut.v= vWorld;
 	float3 fTan=normalize(mul(inData.tan,(float3x3)g_matNorm));
 	float3 B=cross(fTan,inData.n);
@@ -167,10 +170,9 @@ VS_OUT VS(VS_IN inData)
 Texture2D		g_txDiffuseA : register(t0);
 Texture2D		g_txDiffuseB : register(t1);
 Texture2D		g_SplattingAlpha:register(t2);
-Texture2D		g_SplatTex1;
-Texture2D		g_SplatTex2;
-Texture2D		g_SplatTex3;
-Texture2D		g_SplatTex4;
+
+Texture2D		g_SplattTexArray[1];
+
 SamplerState	g_Sample0 : register(s0);
 
 struct PS_IN
@@ -196,10 +198,8 @@ PS_OUT PS(PS_IN inData)
 	float4 normal = g_txDiffuseB.Sample(g_Sample0, inData.t);	
 	float4 vAlpha=g_SplattingAlpha.Sample(g_Sample0,inData.t/10);
 
-	float4 vTexture1=g_SplatTex1.Sample(g_Sample0,inData.t);
-	float4 vTexture2=g_SplatTex2.Sample(g_Sample0,inData.t);
-	float4 vTexture3=g_SplatTex3.Sample(g_Sample0,inData.t);
-	float4 vTexture4=g_SplatTex4.Sample(g_Sample0,inData.t);
+
+
 
 
 	normal = normalize((normal - 0.5f) * 2.0f);
@@ -208,14 +208,16 @@ PS_OUT PS(PS_IN inData)
 			ComputePointLight(inData.v,inData.n.xyz)
 			+ComputeSpotLight(inData.v,inData.n.xyz));*/
 	
-	
+	if(vSubData.x>=0)
+	{
+		for(int iCount=0; iCount<vSubData.x;iCount++)
+		{
+			float4 vTexture=g_SplattTexArray[iCount].Sample(g_Sample0,inData.t);
+			vBase = lerp(vBase,vTexture, vAlpha.r);
+		}
+	}
 	
 
-
-	vBase = lerp(vBase,vTexture1, vAlpha.r);
-	vBase = lerp(vBase,vTexture2, vAlpha.g);
-	vBase = lerp(vBase,vTexture3, vAlpha.b);
-	vBase = lerp(vBase,vTexture4, vAlpha.a);
 
 	float4 vFinalColor=vBase*(Diffuse(inData.n)+Diffuse(normal.xyz));
 

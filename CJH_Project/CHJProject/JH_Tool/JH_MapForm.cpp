@@ -393,7 +393,7 @@ void JH_MapForm::OnSplattFile20()
 	if (pApp->m_Sample.pSrcTexture)
 	{
 		
-		pApp->m_Sample.m_pSplattTextureName = m_SplattTexture;
+		pApp->m_Sample.m_pSPTAFile = m_SplattTexture;
 	}
 	UpdateData(TRUE);
 }

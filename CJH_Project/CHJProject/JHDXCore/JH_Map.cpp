@@ -8,6 +8,8 @@ INT JH_Map::AddSplattTexture(const TCHAR* pFileName,int Num, float Alpha)
 	int index=I_Texture.Add(m_dxHelper.m_pd3dDevice, pFileName);
 
 	m_vSplattTextureList[Num-1]=(I_Texture.GetPtr(index));
+	
+	m_vSplattSRVList.push_back(m_vSplattTextureList[Num - 1]->m_pTextureRV);
 
 	return index;
 }
@@ -300,11 +302,14 @@ HRESULT  JH_Map::Load(ID3D11Device* pD3D11Device, ID3D11DeviceContext* pD3D11Dev
 	m_fScaleHeight = m_MapDesc.fScaleHeight;
 	m_vSplattTextureList.resize(4);
 
+	
+
 
 	if (!Create(pD3D11Device, pD3D11DeviceContext, m_MapDesc.ShaderFileName, m_MapDesc.TextureFileName))
 	{
 		return  false;
 	}
+	//m_CBSub.Attach(DX::MakeConstantBuffer(m_dxHelper.m_pd3dDevice, nullptr, sizeof(CB_SPT), 1));
 	return true;
 }
 HRESULT JH_Map::CreateVertexData()

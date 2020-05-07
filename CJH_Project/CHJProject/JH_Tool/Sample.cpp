@@ -43,22 +43,19 @@ TCHAR* Sample::SaveFileDlg(TCHAR* szExt, TCHAR* szTitle)
 
 	return szFile;
 }
-bool	 Sample::SaveMapTexture()
+bool	Sample::SaveDataReset()
 {
-	m_RenderTarget.Begin(m_pImmediateContext.Get(), D3DXVECTOR4(1, 1, 1, 1));
-	if (m_Map != nullptr)
-	{
-
-		m_Map->SetMatrix(nullptr,
-			nullptr,
-			nullptr);
-		m_QuadTree->Render();
-	}
+	m_sMapData.m_BaseTextureFile = nullptr;
+	m_sMapData.m_NormalMapFile = nullptr;
+	m_sMapData.m_pSplattAlphaTextureFile.clear();
+	m_sMapData.m_pSplattTextureFile.clear();
+	m_sMapData.m_ShaderFile = nullptr;
 	return true;
 }
 bool  Sample::SaveMapData()
 {
 	
+	m_sMapData.m_pSplattAlphaTextureFile.push_back(m_pSPTAFile);
 	FILE* fp;
 	TCHAR  szFile[256] = { 0, };
 	_tcscpy(szFile, SaveFileDlg(_T("Map"), _T("Export")));
@@ -71,15 +68,25 @@ bool  Sample::SaveMapData()
 	m_Map->m_pNormMapFileName);
 	_ftprintf(fp, _T("%s %s\n"), L"Shader",
 		 m_Map->m_ShaderFileName);
-	_ftprintf(fp, _T("%s %s\n"), L"SplattTexture",
-		m_pSplattTextureName);
 
-	_ftprintf(fp, _T("%s \n"), L"SplattTextures");
+	_ftprintf(fp, _T("%s %d\n"), L"SPT_ALPHA_NUM",
+		m_sMapData.m_pSplattAlphaTextureFile.size());
+
+	for (int iSpt = 0; iSpt < m_sMapData.m_pSplattAlphaTextureFile.size(); iSpt++)
+	{
+		_ftprintf(fp, _T("%s %s\n"), L"ALPHATEX",
+			m_sMapData.m_pSplattAlphaTextureFile[iSpt]);
+	}
+
 	for (int i = 0; i < m_Map->m_vSplattTextureList.size(); i++)
 	{
-		if (!m_Map->m_vSplattTextureList[i])break;
-	
-		_ftprintf(fp, _T("%d %s"),i,m_Map->m_vSplattTextureList[i]->GetPullPath().c_str());
+		m_sMapData.m_pSplattTextureFile.push_back(m_Map->m_vSplattTextureList[i]->GetPullPath());
+	}
+
+	_ftprintf(fp, _T("%s %d\n"), L"SPT_TEX_NUM", m_sMapData.m_pSplattTextureFile.size());
+	for (int i = 0; i < m_sMapData.m_pSplattTextureFile.size(); i++)
+	{
+		_ftprintf(fp, _T("%d %s"),i, m_sMapData.m_pSplattTextureFile[i]);
 	}
 
 	_ftprintf(fp, _T("%s %d\n %s\n"), L"VertexNum",m_Map->m_VertexData.size(),L"VertexHegiht");
@@ -93,9 +100,10 @@ bool  Sample::SaveMapData()
 
 	}
 
-	
+
 
 	fclose(fp);
+	SaveDataReset();
 	return true;
 }
 bool  Sample::LoadMapData(const TCHAR* LoadFile)
@@ -111,21 +119,41 @@ bool  Sample::LoadMapData(const TCHAR* LoadFile)
 	}
 
 	//Map Basic Text Data
-	_fgetts(m_pBuffer, 256, fp);
-	_stscanf(m_pBuffer, _T("%s\n %s\n %s\n %s\n \n"),m_pString,
-		m_LoadMapData.m_BaseTextureFile, m_LoadMapData.m_NormalMapFile,m_LoadMapData.m_ShaderFile,
-		m_LoadMapData.m_pSplattAlphaTextureFile);
 
-	//Splatt Texture
-	_fgetts(m_pBuffer, 256, fp);
-	_stscanf(m_pBuffer, _T("%s \n"), m_pString);
-	for (int i = 0; i < m_Map->m_vSplattTextureList.size(); i++)
-	{
-		if (!m_Map->m_vSplattTextureList[i])break;
 
+	
+	_fgetts(m_pBuffer, 256, fp);
+	_stscanf(m_pBuffer, _T("%s %s\n"), m_pString,
+		m_sMapData.m_BaseTextureFile);
+
+		_fgetts(m_pBuffer, 256, fp);
+		_stscanf(m_pBuffer, _T("%s %s\n"), m_pString, m_sMapData.m_NormalMapFile);
 		
 		_fgetts(m_pBuffer, 256, fp);
-		_stscanf(m_pBuffer, _T("%d %s"), i, m_LoadMapData.m_pSplattTextureFile[i]);
+		_stscanf(m_pBuffer, _T("%s %s\n "), m_pString, m_sMapData.m_ShaderFile);
+
+		_fgetts(m_pBuffer, 256, fp);
+		_stscanf(m_pBuffer, _T("%s %d\n "), &m_iTemp);
+		
+		m_sMapData.m_pSplattAlphaTextureFile.resize(m_iTemp);
+		for (int iSpt = 0; iSpt < m_sMapData.m_pSplattAlphaTextureFile.size(); iSpt++)
+		{
+			_ftprintf(fp, _T("%s %s\n"), L"ALPHATEX",
+				m_sMapData.m_pSplattAlphaTextureFile[iSpt]);
+		}
+
+
+		
+	//Splatt Texture
+		_fgetts(m_pBuffer, 256, fp);
+		_stscanf(m_pBuffer, _T("%s %d\n"), m_pString, &m_iTemp);
+
+		m_sMapData.m_pSplattTextureFile.resize(m_iTemp);
+	for (int i = 0; i < m_sMapData.m_pSplattTextureFile.size(); i++)
+	{
+		
+		_fgetts(m_pBuffer, 256, fp);
+		_stscanf(m_pBuffer, _T("%d %s"), i, m_sMapData.m_pSplattTextureFile[i]);
 	}
 
 	// Vertex Height Data
@@ -606,9 +634,10 @@ bool Sample::Frame()
 	I_LIGHT_MGR.m_cbLight.vEyeDir = { m_pMainCamera->m_vLookup,30 };
 	I_LIGHT_MGR.m_cbLight.vEyePos = { m_pMainCamera->m_vPos,30 };
 
-	if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
+	if (m_Map->m_bMapEdit)//&& m_fTimer >=0.5)
 	{
-		if (m_Map->m_bMapEdit)
+		
+		if (G_Input.KeyCheck(VK_LBUTTON))
 		{
 			GetNearPoint();
 			SPHERE sphere;
@@ -647,10 +676,9 @@ bool Sample::Frame()
 					0, -(m_NearPoint.z*16) + ((m_Map->m_iColumNum-1)*16/ 2.0f));
 				sphere.vCenter = vPoint;
 				sphere.Radius = 2;
-				m_QuadTree->GetSelectNode(m_QuadTree->m_pRootNode);
 				
 			
-				//CreateSplattingTexture(m_QuadTree->m_pNearPointNode);
+	
 				MapSplatting(sphere);
 
 				
@@ -670,17 +698,13 @@ bool Sample::Frame()
 	if (m_Map != nullptr)
 	{
 	
-		//m_Map->SetMatrix(nullptr,
-		//	&m_matTopView,
-		//	&m_matTopProj);
-
-		//m_QuadTree->Render();
-
-
 		m_Map->SetMatrix(nullptr,
-			nullptr,
-			nullptr);
-		m_Map->Render();
+			&m_matTopView,
+			&m_matTopProj);
+
+		m_QuadTree->Render();
+
+
 	}
 	m_RenderTarget.End(m_pImmediateContext.Get());
 	return true;
@@ -704,8 +728,8 @@ bool Sample::Render()
 		
 		UINT offset = 0;
 		UINT stride = sizeof(D3DXVECTOR3);
-		//m_Map->m_dxHelper.m_pContext->PSSetShaderResources(1, 1,&m_Map->m_pTexture->m_pTextureRV);
-		//m_Map->m_dxHelper.m_pContext->IASetVertexBuffers(1, 1, &m_Map->m_pTangentVB,&stride,&offset);
+		m_Map->m_dxHelper.m_pContext->PSSetShaderResources(1, 1,&m_Map->m_pTexture->m_pTextureRV);
+		m_Map->m_dxHelper.m_pContext->IASetVertexBuffers(1, 1, &m_Map->m_pTangentVB,&stride,&offset);
 		m_Map->m_dxHelper.m_pContext->PSSetConstantBuffers(1, 1, pBuffers);
 		
 
@@ -737,10 +761,10 @@ bool Sample::Render()
 	{
 		//문제있음
 
-		m_MiniMap.PreRender();
+	/*	m_MiniMap.PreRender();
 		m_pImmediateContext->PSSetShaderResources(0, 1,
 			m_RenderTarget.m_pSRV.GetAddressOf());
-		m_MiniMap.PostRender();
+		m_MiniMap.PostRender();*/
 	}
 	m_pImmediateContext->RSSetViewports(1, &m_ViewPort);
 
@@ -783,7 +807,7 @@ Sample::Sample()
 	bAttach = false;
 	bSplatting = false;
 	
-	m_pSplattTextureName = nullptr;
+	m_pSPTAFile = nullptr;
 	CurrentObjIndex = -1;
 }
 

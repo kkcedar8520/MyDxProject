@@ -3,6 +3,14 @@
 #include"JH_ShapePlane.h"
 #include"TextureMgr.h"
 #include"NormalMap.h"
+struct CB_SPT
+{
+	D3DXVECTOR4 MapSubData;//x:splattTexture Num
+	CB_SPT()
+	{
+		MapSubData = D3DXVECTOR4(0, 0, 0, 0);
+	}
+};
 struct SplattTextureDesc
 {
 	int TexNum;
@@ -31,6 +39,10 @@ class JH_Map :public JH_ShapePlane
 public:
 	bool	m_bMapEdit;
 	vector<Texture*> m_vSplattTextureList;
+	vector<ComPtr<ID3D11ShaderResourceView>> m_vSplattSRVList;
+	//
+	CB_SPT m_CBSubData;
+	ComPtr<ID3D11Buffer>					m_CBSub;
 public:
 	vector<D3DXVECTOR3>  m_TangentList;
 	NormalMap			 m_NormalMap;
@@ -40,6 +52,7 @@ public:
 	int					 m_iTexNum;
 	const TCHAR*		 m_pNormMapFileName;
 	ComPtr<ID3D11ShaderResourceView> m_pNormSrv;
+	
 	
 public:
 	D3DXVECTOR3 m_vEyePos;

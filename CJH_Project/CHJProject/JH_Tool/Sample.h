@@ -8,16 +8,17 @@
 #include"JHShapeBox.h"
 #include"MaxObj.h"
 #include"TextureMgr.h"
-struct LoadMap
+struct MAPDATA
 {
 	T_STR m_BaseTextureFile;
 	T_STR m_NormalMapFile;
 	T_STR m_ShaderFile;
-	T_STR m_pSplattAlphaTextureFile;
+	vector<T_STR> m_pSplattAlphaTextureFile;
 
-	T_STR m_pSplattTextureFile[4];
 
-	//Splatt Texture
+	vector<T_STR> m_pSplattTextureFile;
+
+	
 
 };
 struct BufType
@@ -64,12 +65,12 @@ public:
 	D3D11_VIEWPORT	m_vp;
 	float m_fTimer;
 	//Save
-	const TCHAR*			m_pSplattTextureName;
+	const TCHAR*			m_pSPTAFile;
 	//Load
 	TCHAR  m_pBuffer[256];
 	TCHAR  m_pString[256];
 	int    m_iTemp;
-	LoadMap m_LoadMapData;
+	MAPDATA m_sMapData;
 public:
 	shared_ptr<JH_ShapeLine>m_DebugLine;
 	shared_ptr<JH_Map>		m_Map;
@@ -100,7 +101,8 @@ public:
 	//¿˙¿Â
 	TCHAR*	SaveFileDlg(TCHAR* szExt, TCHAR* szTitle);
 	bool	SaveMapData();
-	bool	SaveMapTexture();
+	bool	SaveDataReset();
+
 	//Load
 	bool   LoadMapData(const TCHAR* LoadFile);
 	//OVERRIDE
