@@ -309,7 +309,7 @@ HRESULT  JH_Map::Load(ID3D11Device* pD3D11Device, ID3D11DeviceContext* pD3D11Dev
 	{
 		return  false;
 	}
-	//m_CBSub.Attach(DX::MakeConstantBuffer(m_dxHelper.m_pd3dDevice, nullptr, sizeof(CB_SPT), 1));
+	m_CBSub.Attach(DX::MakeConstantBuffer(m_dxHelper.m_pd3dDevice, nullptr, sizeof(CB_SPT), 1));
 	return true;
 }
 HRESULT JH_Map::CreateVertexData()
