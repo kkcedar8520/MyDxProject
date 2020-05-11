@@ -89,6 +89,11 @@ bool  Sample::SaveMapData()
 		_ftprintf(fp, _T("%d %s"),i, m_sMapData.m_pSplattTextureFile[i]);
 	}
 
+	int iWidth = m_Map->m_iColumNum / m_Map->m_iCellCount;
+	int iHeight = m_Map->m_iRowNum/ m_Map->m_iCellCount;
+	int iCellSize=(int)m_Map->m_fCellDistance;
+	_ftprintf(fp, _T("%s %d %d %d %d\n"), L"MapSizeData", iWidth, iHeight,m_Map->m_iCellCount, iCellSize);
+
 	_ftprintf(fp, _T("%s %d\n %s\n"), L"VertexNum",m_Map->m_VertexData.size(),L"VertexHegiht");
 	int layer = 0;
 	for (int  iVertex = 0; iVertex < m_Map->m_VertexData.size(); iVertex++)
@@ -155,7 +160,8 @@ bool  Sample::LoadMapData(const TCHAR* LoadFile)
 		_fgetts(m_pBuffer, 256, fp);
 		_stscanf(m_pBuffer, _T("%d %s"), i, m_sMapData.m_pSplattTextureFile[i]);
 	}
-
+	_fgetts(m_pBuffer, 256, fp);
+	_stscanf(m_pBuffer, _T("%s %d %d %d %d\n"),m_pString,&m_sMapData.iRow,&m_sMapData.iCol,&m_sMapData.iCellCount,&m_sMapData.iCellSize);
 	// Vertex Height Data
 	_fgetts(m_pBuffer, 256, fp);
 	_stscanf(m_pBuffer, _T("%s %d\n %s\n"),m_pString,&m_iTemp, m_pString);
@@ -173,39 +179,43 @@ bool  Sample::LoadMapData(const TCHAR* LoadFile)
 	}
 	return true;
 }
-void 	Sample::RunComputeShaderSplatting(UINT nNumViews,ID3D11ShaderResourceView** pShaderResourceView,
+void 	Sample::RunComputeShaderSplatting(UINT nNumViews, ID3D11ShaderResourceView** pShaderResourceView,
 	ID3D11UnorderedAccessView* pUnorderedAccessView, UINT X, UINT Y, UINT Z)
 {
+
+
+	m_pImmediateContext->CSSetShader(m_pCS.Get(), NULL, 0);
+
+
+	m_pImmediateContext->CSSetShaderResources(0, 1, m_pReadSrv.GetAddressOf());
+	m_pImmediateContext->CSSetShaderResources(1, 1, m_pBufSrv.GetAddressOf());
+
+	m_pImmediateContext->CSSetUnorderedAccessViews(0,1, m_pUAV.GetAddressOf(),NULL);
+	ID3D11Buffer* ppCBNULL[1] = { NULL };
+	m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);
+
+	m_pImmediateContext->Dispatch(X, Y, Z);
+
+	//m_pImmediateContext->CopyResource(pReadTexture.Get(), pUAVTexture.Get());
+
+
+	m_pImmediateContext->CSSetShader(NULL, NULL, 0);
+
+
+	// CS 技泼 秦力
+	ID3D11UnorderedAccessView* ppUAViewNULL[1] = { NULL };
+	m_pImmediateContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, NULL);
+
+	ID3D11ShaderResourceView* ppSRVNULL[2] = { NULL, NULL };
+	m_pImmediateContext->CSSetShaderResources(0, 2, ppSRVNULL);
+
+
+	m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);
+
 	
 
-	//m_pImmediateContext->CSSetShader(m_pCS.Get(), NULL, 0);
 
 
-	//m_pImmediateContext->CSSetShaderResources(0, 1,m_pReadSrv.GetAddressOf());
-	//m_pImmediateContext->CSSetShaderResources(1, 1, m_pBufSrv.GetAddressOf());
-
-	//m_pImmediateContext->CSSetUnorderedAccessViews(0, 1,&pUnorderedAccessView, NULL);
-
-	//m_pImmediateContext->Dispatch(X, Y, Z);
-
-	//m_pImmediateContext->CSSetShader(NULL, NULL, 0);
-
-
-	//// CS 技泼 秦力
-	//ID3D11UnorderedAccessView* ppUAViewNULL[1] = { NULL };
-	//m_pImmediateContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, NULL);
-
-	//ID3D11ShaderResourceView* ppSRVNULL[2] = { NULL, NULL };
-	//m_pImmediateContext->CSSetShaderResources(0, 2, ppSRVNULL);
-
-	//ID3D11Buffer* ppCBNULL[1] = { NULL };
-	//m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);\
-
-	//
-	////m_pImmediateContext->CopyResource((ID3D11Resource*)m_pReadSrv.Get(), (ID3D11Resource*)m_pUAV.Get());
-
-	////m_pSplSrv.Reset();
-	////m_pSplSrv.Attach(DX::CreateShaderResourceView(m_pd3dDevice.Get(), pSrcTexture.Get()));
 
 }
 HRESULT	Sample::CreateSplattingTexture(HNode* pNode)
@@ -274,7 +284,7 @@ HRESULT	Sample::CreateSplattingTexture()
 	
 
 
-	td.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	td.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;;
 	td.BindFlags = D3D11_BIND_RENDER_TARGET|D3D11_BIND_SHADER_RESOURCE;
 	td.Usage = D3D11_USAGE_DEFAULT;
 	if (FAILED(hr = m_pd3dDevice->CreateTexture2D(&td, NULL, &pSrcTexture)))
@@ -292,40 +302,54 @@ HRESULT Sample::CreateCSTexture()
 
 	
 	HRESULT hr = S_OK;
-	////before dispatch
-	//D3D11_TEXTURE2D_DESC td;
-	//ZeroMemory(&td, sizeof(td));
-	//td.Width = m_Map->m_iRowNum - 1;
-	//td.Height = m_Map->m_iColumNum - 1;
-	//td.MipLevels = 1;
-	//td.ArraySize = 1;
-	//td.SampleDesc.Count = 1;
-	//td.SampleDesc.Quality = 0;
-	//td.Usage = D3D11_USAGE_DEFAULT;
-	//td.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
-	//td.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	//hr = m_pd3dDevice->CreateTexture2D(&td, NULL, pUAVTexture.GetAddressOf());
+	//before dispatch
+	D3D11_TEXTURE2D_DESC td;
+	ZeroMemory(&td, sizeof(td));
+	m_vBuf0[0].iRow = (m_Map->m_iRowNum - 1)*30;
+	m_vBuf0[0].iCol = (m_Map->m_iRowNum - 1)*30;
+	td.Width = m_vBuf0[0].iRow;
+	td.Height = m_vBuf0[0].iCol;
+	td.MipLevels = 1;
+	td.MiscFlags = 0;
+	td.ArraySize = 1;
+	td.SampleDesc.Count = 1;
+	td.SampleDesc.Quality = 0;
+	td.Usage = D3D11_USAGE_DEFAULT;
+	td.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+	td.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	hr = m_pd3dDevice->CreateTexture2D(&td, NULL, pUAVTexture.GetAddressOf());
 
-	//D3D11_UNORDERED_ACCESS_VIEW_DESC viewDescUAV;
-	//ZeroMemory(&viewDescUAV, sizeof(viewDescUAV));
-	//viewDescUAV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	//viewDescUAV.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	//viewDescUAV.Texture2D.MipSlice = 0;
- //	hr = m_pd3dDevice->CreateUnorderedAccessView(pUAVTexture.Get(), &viewDescUAV, m_pUAV.GetAddressOf());
+	td.CPUAccessFlags = D3D11_CPU_ACCESS_READ ;
+	td.BindFlags = 0;;
+	td.Usage = D3D11_USAGE_STAGING;
+	hr = m_pd3dDevice->CreateTexture2D(&td, NULL, pReadTexture.GetAddressOf());
 
-	////the getSRV function after dispatch.
-	//D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	//ZeroMemory(&srvDesc, sizeof(srvDesc));
-	//srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	//srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	//srvDesc.Texture2D.MipLevels = 1;
-	//hr = m_pd3dDevice->CreateShaderResourceView(pUAVTexture.Get(), &srvDesc, m_pReadSrv.GetAddressOf());
+	D3D11_UNORDERED_ACCESS_VIEW_DESC viewDescUAV;
+	ZeroMemory(&viewDescUAV, sizeof(viewDescUAV));
+	viewDescUAV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	viewDescUAV.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	viewDescUAV.Texture2D.MipSlice = 0;
+ 	hr = m_pd3dDevice->CreateUnorderedAccessView(pUAVTexture.Get(), &viewDescUAV, m_pUAV.GetAddressOf());
 
+	//the getSRV function after dispatch.
 
 
 
-	//m_pStructureBF.Attach(DX::CreateStructureBuffer(m_pd3dDevice.Get(), &m_vBuf0[0], 1, sizeof(BufType)));
-	//m_pBufSrv.Attach(DX::CreateBufferSrv(m_pd3dDevice.Get(), m_pStructureBF.Get()));
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	hr = m_pd3dDevice->CreateShaderResourceView(pUAVTexture.Get(), &srvDesc, m_pReadSrv.GetAddressOf());
+
+
+	m_vBuf0[0].vPickPos = D3DXVECTOR3(0, 0, 0);
+	m_vBuf0[0].fRadius = 1;
+
+
+	m_pStructureBF.Attach(DX::CreateStructureBuffer(m_pd3dDevice.Get(), &m_vBuf0[0], 1, sizeof(BufType)));
+	m_pBufSrv.Attach(DX::CreateBufferSrv(m_pd3dDevice.Get(), m_pStructureBF.Get()));
 
 
 	return hr;
@@ -518,12 +542,14 @@ bool Sample::CreateMap(int iWidth,
 	}
 	else
 	{
+		m_Map->m_iCellCount = iCellCount;
 		m_Map->m_iRowNum = iCellCount * iWidth + 1;
 		m_Map->m_iColumNum = iCellCount * iHeight + 1;
 	}
 
-	CreateSplattingTexture();
+//	CreateSplattingTexture();
 	CreateCSTexture();
+
 	m_Map->SetMapDesc(pTexturFileName, L"../../data/Shader/LightShader.txt", m_Map->m_iRowNum, m_Map->m_iColumNum, iCellSize, 2.0f);
 
 
@@ -563,13 +589,7 @@ bool Sample::Init()
 
 	I_LIGHT_MGR.Init();
 
-	//for (int i = 0; i < I_LIGHT_MGR.m_LightObjList.size; i++)
-	//{
-	//	RenderTarget RT;
-	//	RT.Cretae(m_pd3dDevice.Get());
 
-	//	m_RTTextureList.push_back(RT);
-	//}
 
 
 	
@@ -649,42 +669,48 @@ bool Sample::Frame()
 		
 	}
 
-	//if (bSplatting)
-	//{
-	//	if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
-	//	{
-	//		GetNearPoint();
-	//		m_vBuf0[0].vPickPos = D3DXVECTOR3(0,0,0);
-	//		m_vBuf0[0].iIndex = 0;
-	//		m_vBuf0[0].fRadius = 1;
-	//		ID3D11ShaderResourceView* aView[2] = {m_pReadSrv.Get(), m_pBufSrv.Get() };
-	//		RunComputeShaderSplatting(2, aView,m_pUAV.Get(), m_Map->m_iRowNum-1 / 32, m_Map->m_iColumNum-1 / 24, 1);
-
-	//		m_pImmediateContext->PSSetShaderResources(2, 1, &m_pReadSrv);
-	//		
-	//	}
-	//}
-
-	
-		if (bSplatting)
+	if (bSplatting)
+	{
+		if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
 		{
-			if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
-			{
-				GetNearPoint();
-				SPHERE sphere;
-				D3DXVECTOR3 vPoint = D3DXVECTOR3(m_NearPoint.x*16 + ((m_Map->m_iRowNum-1)*16 / 2.0f),
-					0, -(m_NearPoint.z*16) + ((m_Map->m_iColumNum-1)*16/ 2.0f));
-				sphere.vCenter = vPoint;
-				sphere.Radius = 2;
-				
-			
-	
-				MapSplatting(sphere);
+			GetNearPoint();
+			m_vBuf0[0].vPickPos = D3DXVECTOR3(m_NearPoint.x*30  + ((m_vBuf0[0].iRow)  / 2.0f),
+							0, -(m_NearPoint.z*30) + ((m_vBuf0[0].iCol)/ 2.0f));
 
-				
-				//m_pImmediateContext->PSSetShaderResources(3, 1, &m_pTexture->m_pTextureRV);
+			for (int i = 0; i < m_Map->m_vSplattTextureList.size(); i++)
+			{
+				m_vBuf0[0].Alpha[i] = m_Map->m_vSplattTextureList[i]->GetAlpha();
+				m_vBuf0[0].iIndex[i] = i;
 			}
+			m_pImmediateContext->UpdateSubresource((ID3D11Resource*)m_pStructureBF.Get(), NULL, nullptr, &m_vBuf0, NULL, NULL);
+			ID3D11ShaderResourceView* aView[2] = {m_pReadSrv.Get(), m_pBufSrv.Get() };
+			RunComputeShaderSplatting(2, aView,m_pUAV.Get(), m_vBuf0[0].iRow /16, m_vBuf0[0].iCol / 16, 1);
+
+			m_pImmediateContext->PSSetShaderResources(2, 1, m_pReadSrv.GetAddressOf());
+			
 		}
+	}
+
+	
+		//if (bSplatting)
+		//{
+		//	if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
+		//	{
+		//		GetNearPoint();
+		//		SPHERE sphere;
+		//		D3DXVECTOR3 vPoint = D3DXVECTOR3(m_NearPoint.x*16 + ((m_Map->m_iRowNum-1)*16 / 2.0f),
+		//			0, -(m_NearPoint.z*16) + ((m_Map->m_iColumNum-1)*16/ 2.0f));
+		//		sphere.vCenter = vPoint;
+		//		sphere.Radius = 2;
+		//		
+		//	
+	
+		//		MapSplatting(sphere);
+
+		//		
+		//		//m_pImmediateContext->PSSetShaderResources(3, 1, &m_pTexture->m_pTextureRV);
+		//	}
+		//}
 
 	
 	m_QuadTree->Frame();

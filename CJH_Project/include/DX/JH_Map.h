@@ -38,7 +38,8 @@ class JH_Map :public JH_ShapePlane
 {
 public:
 	bool	m_bMapEdit;
-	vector<Texture*> m_vSplattTextureList;
+
+	map<int,Texture*> m_vSplattTextureList;
 	vector<ComPtr<ID3D11ShaderResourceView>> m_vSplattSRVList;
 	//
 	CB_SPT m_CBSubData;
@@ -57,6 +58,7 @@ public:
 public:
 	D3DXVECTOR3 m_vEyePos;
 	MapDesc m_MapDesc;
+	int m_iCellCount;
 	int m_iColumNum;
 	int m_iRowNum;
 	int m_iVertices;

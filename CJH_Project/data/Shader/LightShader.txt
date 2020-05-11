@@ -171,7 +171,9 @@ Texture2D		g_txDiffuseA : register(t0);
 Texture2D		g_txDiffuseB : register(t1);
 Texture2D		g_SplattingAlpha:register(t2);
 
+
 Texture2D		g_SplattTexArray[8];
+
 
 SamplerState	g_Sample0 : register(s0);
 
@@ -197,38 +199,33 @@ PS_OUT PS(PS_IN inData)
 	float4 vBase = g_txDiffuseA.Sample(g_Sample0, inData.t);	
 	float4 normal = g_txDiffuseB.Sample(g_Sample0, inData.t);	
 	float4 vAlpha=g_SplattingAlpha.Sample(g_Sample0,inData.t/10);
+	
 
 	normal = normalize((normal - 0.5f) * 2.0f);
 
-	float4 vBeforeFinalColor=vBase*(Diffuse(inData.n));
+	float4 vFinalColor=vBase*(Diffuse(normal.xyz));
 	
-	float4 vTexture=g_SplattTexArray[0].Sample(g_Sample0,inData.t);
-	vBase = lerp(vBase,vTexture, vAlpha.r);
-	vTexture=g_SplattTexArray[1].Sample(g_Sample0,inData.t);
-	vBase = lerp(vBase,vTexture, vAlpha.g);
-	vTexture=g_SplattTexArray[2].Sample(g_Sample0,inData.t);
-	vBase = lerp(vBase,vTexture, vAlpha.b);
-	vTexture=g_SplattTexArray[3].Sample(g_Sample0,inData.t);
-	vBase = lerp(vBase,vTexture, vAlpha.a);
-		
-	vTexture=g_SplattTexArray[4].Sample(g_Sample0,inData.t);
-	vBase = lerp(vBase,vTexture, vAlpha.r);
-	vTexture=g_SplattTexArray[5].Sample(g_Sample0,inData.t);
-	vBase = lerp(vBase,vTexture, vAlpha.g);
-	vTexture=g_SplattTexArray[6].Sample(g_Sample0,inData.t);
-	vBase = lerp(vBase,vTexture, vAlpha.b);
-	vTexture=g_SplattTexArray[7].Sample(g_Sample0,inData.t);
-	vBase = lerp(vBase,vTexture, vAlpha.a);
-
-	float4 vFinalColor=vBase*(Diffuse(inData.n));
-
-	if(vAlpha.r==0)
+	for(int iCount=0 ; iCount<vSubData.x;iCount+=4)
 	{
-		vFinalColor=vBase*(Diffuse(normal.xyz));
+	float4 vTexture=g_SplattTexArray[iCount].Sample(g_Sample0,inData.t);
+	vBase = lerp(vBase,vTexture, vAlpha.r);
+	vTexture=g_SplattTexArray[iCount].Sample(g_Sample0,inData.t);
+	vBase = lerp(vBase,vTexture, vAlpha.g);
+	vTexture=g_SplattTexArray[iCount].Sample(g_Sample0,inData.t);
+	vBase = lerp(vBase,vTexture, vAlpha.b);
+	vTexture=g_SplattTexArray[iCount].Sample(g_Sample0,inData.t);
+	vBase = lerp(vBase,vTexture, vAlpha.a);
 	}
 	
+	if(vAlpha.a==0)
+	{
+		vFinalColor+=vBase*(Diffuse(normal.xyz));
+	}
 	
+
 	vOut.c=vFinalColor;
+	
+	
 	
 
 	vOut.c.a=1.0f;

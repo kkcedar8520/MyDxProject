@@ -10,6 +10,10 @@
 #include"TextureMgr.h"
 struct MAPDATA
 {
+	int iCol;
+	int iRow;
+	int iCellCount;
+	int iCellSize;
 	T_STR m_BaseTextureFile;
 	T_STR m_NormalMapFile;
 	T_STR m_ShaderFile;
@@ -24,9 +28,13 @@ struct MAPDATA
 struct BufType
 {
 	D3DXVECTOR3 vPickPos;
-	D3DXVECTOR3 vRect[4];
-	float  fRadius;
-	int    iIndex;
+	float		fRadius;
+	float		Alpha[4];
+	int			iIndex[4];
+	int			iCol;
+	int			iRow;
+
+
 };
 class Sample :public JHDXCore
 {
@@ -40,6 +48,7 @@ public:
 	ComPtr<ID3D11Texture2D> pSrcTexture;
 	//ComputeShader Splatting
 	ComPtr<ID3D11Texture2D> pUAVTexture;
+	ComPtr<ID3D11Texture2D>	pReadTexture;
 
 	ComPtr<ID3D11Buffer>				m_pStructureBF;
 	ComPtr<ID3D11ShaderResourceView>	m_pBufSrv;
@@ -66,11 +75,14 @@ public:
 	float m_fTimer;
 	//Save
 	const TCHAR*			m_pSPTAFile;
+	
 	//Load
 	TCHAR  m_pBuffer[256];
 	TCHAR  m_pString[256];
 	int    m_iTemp;
 	MAPDATA m_sMapData;
+	ComPtr<ID3D11ShaderResourceView> m_pLoadingSplSrv;
+
 public:
 	shared_ptr<JH_ShapeLine>m_DebugLine;
 	shared_ptr<JH_Map>		m_Map;

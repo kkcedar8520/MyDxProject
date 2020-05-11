@@ -376,30 +376,32 @@ bool HQuadTree::Render()
 
 	m_pMap->PreRender();
 
-	ID3D11ShaderResourceView* SRVLIST[10] = {nullptr};
+	ID3D11ShaderResourceView* SRVLIST[10] = { nullptr };
 
-	int iSPTNum = m_pMap->m_vSplattSRVList.size();//스플래팅 텍스쳐 개수
+	int iSPTNum = m_pMap->m_vSplattTextureList.size();//스플래팅 텍스쳐 개수
 
-	if (m_pMap->m_vSplattSRVList.size() )
+
+	for (int i = 0; i < m_pMap->m_vSplattTextureList.size(); i++)
 	{
-		for (int i = 0; i < m_pMap->m_vSplattSRVList.size(); i++)
-		{
-			if (i >= 10)
-			{
-				iSPTNum = 10; //100 개이상 넘어가면 더이상 추가하지않음 
-				break;
-			}
 
-			SRVLIST[i] = m_pMap->m_vSplattSRVList[i].Get();
-		
+		if (i >= 8)
+		{
+			iSPTNum = 8; //100 개이상 넘어가면 더이상 추가하지않음 
+			break;
 		}
+		SRVLIST[i] = m_pMap->m_vSplattTextureList[i]->m_pTextureRV;
+	}
+
+	if (iSPTNum > 0)
+	{
+	
 		m_pMap->m_dxHelper.m_pContext->PSSetShaderResources(3,
 			iSPTNum, SRVLIST);
-		m_pMap->m_CBSubData.MapSubData.x = iSPTNum;
-		m_pMap->m_dxHelper.m_pContext->UpdateSubresource(m_pMap->m_CBSub.Get(), 0, 0, &m_pMap->m_CBSubData, 0, 0);
-		m_pMap->m_dxHelper.m_pContext->PSSetConstantBuffers(2, 1, m_pMap->m_CBSub.GetAddressOf());
-
+	m_pMap->m_CBSubData.MapSubData.x = iSPTNum;
+	m_pMap->m_dxHelper.m_pContext->UpdateSubresource(m_pMap->m_CBSub.Get(), 0, 0, &m_pMap->m_CBSubData, 0, 0);
+	m_pMap->m_dxHelper.m_pContext->PSSetConstantBuffers(2, 1, m_pMap->m_CBSub.GetAddressOf());
 	}
+	
 
 
 

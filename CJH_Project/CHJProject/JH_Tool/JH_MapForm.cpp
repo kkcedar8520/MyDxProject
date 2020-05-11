@@ -361,7 +361,7 @@ void JH_MapForm::OnSaveMapData()
 	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
 	I_Texture.SaveFile(pApp->m_Sample.m_pImmediateContext.Get(),
 		(T_STR)m_SplattTexture,
-		pApp->m_Sample.pSrcTexture.Get());
+		pApp->m_Sample.pUAVTexture.Get());
 
 	pApp->m_Sample.SaveMapData();
 }
@@ -381,6 +381,10 @@ void JH_MapForm::OnLoadMapData()
 		FileName = dlg.GetPathName();
 		m_LoadFileName = FileName;
 		pApp->m_Sample.LoadMapData(m_LoadFileName);
+		
+		MAPDATA MapData= pApp->m_Sample.m_sMapData;
+		pApp->m_Sample.CreateMap(MapData.iRow, MapData.iCol, MapData.iCellCount, MapData.iCellSize,
+			MapData.m_BaseTextureFile, MapData.m_NormalMapFile);
 		UpdateData(FALSE);
 	}
 }
@@ -390,7 +394,7 @@ void JH_MapForm::OnSplattFile20()
 {
 	UpdateData(TRUE);
 	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
-	if (pApp->m_Sample.pSrcTexture)
+	if (pApp->m_Sample.m_pUAV)
 	{
 		
 		pApp->m_Sample.m_pSPTAFile = m_SplattTexture;

@@ -6,48 +6,104 @@ RWTexture2D<float4>		OutputMap : register(u0);
 
 struct BufType
 {
-	float3 vPickPos;
-	float3 vRect[4];
-	float  g_fRadius;
-	int    iIndex;
+
+	float3	vPickPos;
+	float	g_fRadius;
+	float   Alpha[4];
+	int		iIndex[4];
+	int		iCol;
+	int		iRow;
 };
+
 StructuredBuffer<BufType> Buffer0 : register(t1);
 // Group size
-#define size_x 2
-#define size_y 2
+#define size_x 16
+#define size_y 16
 
 [numthreads(size_x, size_y, 1)]
 void CSMAIN(uint3 GroupID : SV_GroupID, uint3 DispatchThreadID : SV_DispatchThreadID, uint3 GroupThreadID : SV_GroupThreadID, uint GroupIndex : SV_GroupIndex)
 {
 	int3 texturelocation = int3(0, 0, 0);
-	//texturelocation.x = GroupID.x * size_x + GroupThreadID.x;
-	//texturelocation.y = GroupID.y * size_y + GroupThreadID.y;
-	texturelocation.x = DispatchThreadID.x;
-	texturelocation.y = DispatchThreadID.y;
+	texturelocation.x = GroupID.x * size_x + GroupThreadID.x;
+	texturelocation.y = GroupID.y * size_y + GroupThreadID.y;
+	//texturelocation.x = DispatchThreadID.x;
+	//texturelocation.y = DispatchThreadID.y;
 
-	float4 Color = InputMap.Load(texturelocation);
-	float3 vPos = float3(texturelocation.x / 1024.0f*200.0f, texturelocation.y / 768.0f*200.0f, 0.0f);
+	float iHalfCol = Buffer0[0].iCol / 2.0f;
+	float iHalfRow = Buffer0[0].iRow / 2.0f;
+	
+	
 	//OutputMap[texturelocation.xy] = float4(vPos.x, vPos.y, vPos.z, 1.0f);
+	float2 vPos;
+	vPos.x = (texturelocation.x- iHalfRow);
+	vPos.y = -(texturelocation.y - iHalfRow);
+	
+	float fDistance= distance(texturelocation.xy, Buffer0[0].vPickPos.xz);
+	
 
-	float fRadius = distance(vPos.xyz, Buffer0[0].vPickPos.xyz);
-	float fDot = 1.0f - (fRadius / Buffer0[0].g_fRadius);
-	if (true)//fRadius < Buffer0[0].g_fRadius)
+	float a = 1 -smoothstep(Buffer0[0].g_fRadius, Buffer0[0].g_fRadius, fDistance);
+	if (a == 0)
 	{
-		float4 fAlpha = float4(0, 0, 0, 0);// *float4(fDot, fDot, fDot, fDot);
-		switch (Buffer0[0].iIndex)
+		return;
+	}
+
+	float4 fAlpha = InputMap.Load(texturelocation);
+
+	int i = 0;
+	while (i < 4)
+	{
+		switch (Buffer0[0].iIndex[i])
 		{
-		case 0: fAlpha.x = 255; break;
-		case 1: fAlpha.y =0; break;
-		case 2: fAlpha.z = 0; break;
-		case 3: fAlpha.w = 0; break;
-		default:
-			fAlpha.x = 255; break;
+		case 0:
+		{
+			if (fAlpha.x < a * 255)
+			{
+
+				fAlpha.x = a* Buffer0[0].Alpha[0];
+			}
+			break;
 		}
-		OutputMap[texturelocation.xy] = fAlpha;// Color * float4(fDot, fDot, fDot, fDot);
+
+		case 1:
+		{
+			if (fAlpha.y < a)
+			{
+				fAlpha.y = a*Buffer0[0].Alpha[1];;
+
+			}
+			break;
+		}
+		case 2:
+		{
+			if (fAlpha.z < a)
+			{
+				fAlpha.z = a * Buffer0[0].Alpha[2];
+
+			}
+			break;
+		}
+		case 3:
+		{
+			if (fAlpha.a < a)
+			{
+				fAlpha.a = a;
+
+			}
+			break;
+		}
+		default:
+		{
+			break;
+		}
+		}
+
+		i++;
 	}
-	else
-	{
-		OutputMap[texturelocation.xy] = float4(255.0f, 0.0f, 0.0f, 1.0f);// -Color;
-	}
+	OutputMap[texturelocation.xy] = fAlpha;
+		// Color * float4(fDot, fDot, fDot, fDot);
+
+
+	
+	
 
 }
