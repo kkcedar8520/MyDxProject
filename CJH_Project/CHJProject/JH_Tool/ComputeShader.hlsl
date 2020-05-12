@@ -33,7 +33,7 @@ void CSMAIN(uint3 GroupID : SV_GroupID, uint3 DispatchThreadID : SV_DispatchThre
 	float iHalfRow = Buffer0[0].iRow / 2.0f;
 	
 	
-	//OutputMap[texturelocation.xy] = float4(vPos.x, vPos.y, vPos.z, 1.0f);
+	
 	float2 vPos;
 	vPos.x = (texturelocation.x- iHalfRow);
 	vPos.y = -(texturelocation.y - iHalfRow);
@@ -41,70 +41,68 @@ void CSMAIN(uint3 GroupID : SV_GroupID, uint3 DispatchThreadID : SV_DispatchThre
 	float fDistance= distance(texturelocation.xy, Buffer0[0].vPickPos.xz);
 	
 
-	float a = 1-smoothstep(Buffer0[0].g_fRadius, Buffer0[0].g_fRadius+2, fDistance);
+	float a = 1-smoothstep(Buffer0[0].g_fRadius, Buffer0[0].g_fRadius+50, fDistance);
 	
 
 
 	float4 fAlpha = InputMap.Load(texturelocation);
-	//fAlpha.x = a;
+
 	//if (a == 0)
 	//{
-	//	fAlpha.x = 1;
-	//	OutputMap[texturelocation.xy] = fAlpha;
 	//	return;
 	//}
 
 
 	
 
-		//switch (Buffer0[0].iIndex)
-		//{
-		//case 0:
-		//{
-		//	if (fAlpha.x < a)
-		//	{
+		switch (Buffer0[0].iIndex)
+		{
+		case 0:
+		{
+			if (fAlpha.x < a)
+			{
 
-		//		fAlpha.x = a;//* Buffer0[0].Alpha[0];
-		//	}
-		//	break;
-		//}
+				fAlpha.x = a;//* Buffer0[0].Alpha[0];
+			}
+			break;
+		}
 
-		//case 1:
-		//{
-		//	if (fAlpha.y < a)
-		//	{
-		//		fAlpha.y = a * Buffer0[0].Alpha[1];;
+		case 1:
+		{
+			if (fAlpha.y < a)
+			{
+				fAlpha.y = a;// *Buffer0[0].Alpha[1];;
 
-		//	}
-		//	break;
-		//}
-		//case 2:
-		//{
-		//	if (fAlpha.z < a)
-		//	{
-		//		fAlpha.z = a * Buffer0[0].Alpha[2];
+			}
+			break;
+		}
+		case 2:
+		{
+			if (fAlpha.z < a)
+			{
+				fAlpha.z = a;// *Buffer0[0].Alpha[2];
 
-		//	}
-		//	break;
-		//}
-		//case 3:
-		//{
-		//	if (fAlpha.a < a)
-		//	{
-		//		fAlpha.a = a;
+			}
+			break;
+		}
+		case 3:
+		{
+			if (fAlpha.a < a)
+			{
+				fAlpha.a = a;
 
-		//	}
-		//	break;
-		//}
-		//default:
-		//{
-		//	break;
-		//}
-		//}
+			}
+			break;
+		}
+		default:
+		{
+			break;
+		}
+		}
 
 	
 	
-	OutputMap[texturelocation.xy] = float4(0.5, 1, 1, 1);//fAlpha;
+	OutputMap[texturelocation.xy] = fAlpha;
 		// Color * float4(fDot, fDot, fDot, fDot);
 
 

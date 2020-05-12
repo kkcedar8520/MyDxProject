@@ -106,7 +106,7 @@ bool  Sample::SaveMapData()
 
 
 	fclose(fp);
-	SaveDataReset();
+	m_sMapData.Reset();
 	return true;
 }
 bool  Sample::LoadMapData(const TCHAR* LoadFile)
@@ -203,6 +203,7 @@ void 	Sample::RunComputeShaderSplatting(UINT nNumViews, ID3D11ShaderResourceView
 	m_pImmediateContext->CSSetShaderResources(0, 1, m_pCopySrv.GetAddressOf());
 	m_pImmediateContext->CSSetShaderResources(1, 1, m_pBufSrv.GetAddressOf());
 
+
 	m_pImmediateContext->CSSetUnorderedAccessViews(0,1, m_pUAV.GetAddressOf(),NULL);
 	ID3D11Buffer* ppCBNULL[1] = { NULL };
 	m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);
@@ -228,7 +229,7 @@ void 	Sample::RunComputeShaderSplatting(UINT nNumViews, ID3D11ShaderResourceView
 	m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);
 
 	
-	m_pImmediateContext->CopyResource((ID3D11Resource*)m_pCopySrv.Get(), (ID3D11Resource*)m_pReadSrv.Get());
+	m_pImmediateContext->CopyResource((ID3D11Resource*)pReadTexture.Get(), (ID3D11Resource*)pUAVTexture.Get());
 
 
 
@@ -511,7 +512,7 @@ void Sample::MapUpDown(SPHERE sphere)
 					{
 						float value = cos(fDet)*g_SecondPerFrame;
 						
-						m_Map->m_VertexData[i0].p.y += value;
+						m_Map->m_VertexData[i0].p.y += value*m_HeightVlaue;
 
 					}
 				}
@@ -539,6 +540,65 @@ void Sample::MapUpDown(SPHERE sphere)
 	
 	
 }
+void Sample::MapFlatting(SPHERE sphere)
+{
+	D3DXVECTOR3 v0, v1, v2;
+
+
+	for (size_t iNode = 0; iNode < m_QuadTree->m_DrawNodeList.size(); iNode++)
+	{
+		float fDistance = sqrt((m_QuadTree->m_DrawNodeList[iNode]->m_Box.vCenter.x - sphere.vCenter.x)*
+			(m_QuadTree->m_DrawNodeList[iNode]->m_Box.vCenter.x - sphere.vCenter.x) +
+			(m_QuadTree->m_DrawNodeList[iNode]->m_Box.vCenter.z - sphere.vCenter.z)*
+			(m_QuadTree->m_DrawNodeList[iNode]->m_Box.vCenter.z - sphere.vCenter.z));
+		DWORD dwFace = m_QuadTree->m_DrawNodeList[iNode]->m_IndexList.size() / 3;
+		if (sphere.Radius > fDistance)
+		{
+			for (int iFace = 0; iFace < dwFace; iFace++)
+			{
+				for (int iV = 0; iV < 3; iV++)
+				{
+					DWORD i0 = m_QuadTree->m_DrawNodeList[iNode]->m_IndexList[iFace * 3 + iV];
+
+
+					fDistance = sqrt((m_Map->m_VertexData[i0].p.x - sphere.vCenter.x)*
+						(m_Map->m_VertexData[i0].p.x - sphere.vCenter.x) +
+						(m_Map->m_VertexData[i0].p.z - sphere.vCenter.z)*
+						(m_Map->m_VertexData[i0].p.z - sphere.vCenter.z));
+
+					float  fDet = (fDistance / sphere.Radius)*D3DX_PI / 2.0;
+					if (sphere.Radius > fDistance)
+					{
+						float value = cos(fDet)*g_SecondPerFrame;
+
+						m_Map->m_VertexData[i0].p.y = 0;
+
+					}
+				}
+				DWORD i0 = m_QuadTree->m_DrawNodeList[iNode]->m_IndexList[iFace * 3 + 0];
+				DWORD i1 = m_QuadTree->m_DrawNodeList[iNode]->m_IndexList[iFace * 3 + 1];
+				DWORD i2 = m_QuadTree->m_DrawNodeList[iNode]->m_IndexList[iFace * 3 + 2];
+
+				D3DXVECTOR3 vFaceNormal, E0, E1;
+				E0 = m_Map->m_VertexData[i1].p - m_Map->m_VertexData[i0].p;
+				E1 = m_Map->m_VertexData[i2].p - m_Map->m_VertexData[i0].p;
+
+				D3DXVec3Cross(&vFaceNormal, &E0, &E1);
+				D3DXVec3Normalize(&vFaceNormal, &vFaceNormal);
+
+				m_Map->m_VertexData[i0].n = vFaceNormal;
+				m_Map->m_VertexData[i1].n = vFaceNormal;
+				m_Map->m_VertexData[i2].n = vFaceNormal;
+
+
+			}
+		}
+
+	}
+	m_pImmediateContext->UpdateSubresource(m_Map->m_dxHelper.m_pVertexBuffer, 0, 0, &m_Map->m_VertexData.at(0), 0, 0);
+
+
+}
 bool Sample::CreateMap(int iWidth,
 	int iHeight,
 	int iCellCount,
@@ -548,8 +608,12 @@ bool Sample::CreateMap(int iWidth,
 {
 
 	
-	if (m_Map!=nullptr) m_Map->Release();
-	m_Map = 0;
+	if (m_Map != nullptr)
+	{
+		m_Map->Release();
+		m_SplattAlphaPlane.Release();
+	}
+
 
 	m_Map = make_shared<JH_Map>();
 	if (m_sMapData.m_fHegihtList.size() > 0)
@@ -571,8 +635,9 @@ bool Sample::CreateMap(int iWidth,
 
 //	CreateSplattingTexture();
 	CreateCSTexture();
+	
 
-	m_Map->SetMapDesc(pTexturFileName, L"../../data/Shader/LightShader.txt", m_Map->m_iRowNum, m_Map->m_iColumNum, iCellSize, 2.0f);
+	m_Map->SetMapDesc(pTexturFileName, L"../../data/Shader/LightShader.txt", m_Map->m_iRowNum, m_Map->m_iColumNum, iCellSize, 1.0f);
 
 
 	m_Map->m_pNormMapFileName=pNormalMapFileName;
@@ -611,7 +676,7 @@ bool Sample::Init()
 
 	I_LIGHT_MGR.Init();
 
-
+	
 
 
 	
@@ -691,6 +756,20 @@ bool Sample::Frame()
 		
 	}
 
+	if (bMapFlatting)//&& m_fTimer >=0.5)
+	{
+
+		if (G_Input.KeyCheck(VK_LBUTTON))
+		{
+			GetNearPoint();
+			SPHERE sphere;
+			sphere.vCenter = m_NearPoint;
+			sphere.Radius = 5;
+			MapFlatting(sphere);
+
+		}
+
+	}
 	if (bSplatting)
 	{
 		if (G_Input.KeyCheck(VK_LBUTTON))//&& m_fTimer >=0.5)
@@ -699,7 +778,7 @@ bool Sample::Frame()
 			m_vBuf0[0].vPickPos = D3DXVECTOR3(m_NearPoint.x*30  + ((m_vBuf0[0].iRow)  / 2.0f),
 							0, -(m_NearPoint.z*30) + ((m_vBuf0[0].iCol)/ 2.0f));
 
-		
+	
 		
 			m_pImmediateContext->UpdateSubresource((ID3D11Resource*)m_pStructureBF.Get(), NULL, nullptr, &m_vBuf0, NULL, NULL);
 			ID3D11ShaderResourceView* aView[2] = {m_pReadSrv.Get(), m_pBufSrv.Get() };
@@ -752,6 +831,17 @@ bool Sample::Frame()
 
 	//}
 	//m_RenderTarget.End(m_pImmediateContext.Get());
+
+	//m_RenderTarget.Begin(m_pImmediateContext.Get(), D3DXVECTOR4(1, 1, 1, 1));
+	//if (m_Map != nullptr)
+	//{
+	//	m_SplattAlphaPlane.PreRender();
+	//	m_SplattAlphaPlane.SetMatrix(nullptr, nullptr, nullptr);
+	//	m_pImmediateContext->PSSetShaderResources(0, 1, m_pReadSrv.GetAddressOf());
+	//	m_SplattAlphaPlane.Render();
+	//	m_pImmediateContext->PSSetShaderResources(0, 1,nullptr);
+	//}
+	//m_RenderTarget.End(m_pImmediateContext.Get());
 	return true;
 }
 bool Sample::Render()
@@ -790,22 +880,22 @@ bool Sample::Render()
 
 		m_QuadTree->Render();
 
-		if (m_CurrentObj)
-		{
-			m_CurrentObj->SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
-			m_CurrentObj->Render();
-		}
+		//if (m_CurrentObj)
+		//{
+		//	m_CurrentObj->SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
+		//	m_CurrentObj->Render();
+		//}
 	
 
 	}
 
-	for (auto obj : m_ObjList)
-	{
-		obj.second->SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
-		obj.second->Render();
-		D3DXMatrixIdentity(&obj.second->m_matWorld);
-		
-	}
+	//for (auto obj : m_ObjList)
+	//{
+	//	obj.second->SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
+	//	obj.second->Render();
+	//	D3DXMatrixIdentity(&obj.second->m_matWorld);
+	//	
+	//}
 	m_MiniMap.SetMatrix(NULL, NULL, NULL);
 	m_pImmediateContext->RSSetViewports(1, &m_vp);
 
@@ -863,6 +953,7 @@ Sample::Sample()
 	m_fTimer = 0.0f;
 	bAttach = false;
 	bSplatting = false;
+	bMapFlatting = false;
 	
 	m_pSPTAFile = nullptr;
 	CurrentObjIndex = -1;

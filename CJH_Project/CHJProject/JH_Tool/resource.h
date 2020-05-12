@@ -7,6 +7,7 @@
 #define IDOK4                           5
 #define IDOK10                          6
 #define IDOK5                           7
+#define IDOK11                          8
 #define IDOK6                           10
 #define IDOK7                           11
 #define IDOK8                           12

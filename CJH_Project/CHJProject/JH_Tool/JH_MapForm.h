@@ -66,4 +66,7 @@ public:
 	CString m_SplattTexture;
 	afx_msg void OnSplattFile20();
 	float m_fRadius;
+	afx_msg void OnEnChangeEdit13();
+	float m_HeightValue;
+	afx_msg void OnMapFlatt();
 };

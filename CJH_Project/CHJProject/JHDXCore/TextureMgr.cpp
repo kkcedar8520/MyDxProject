@@ -78,6 +78,7 @@ T_STR Texture::GetPullPath()
 	{
 		return _T("NULL");
 	}
+
 	return m_szPath + m_szName;
 }
 
@@ -89,7 +90,7 @@ HRESULT TextureMgr::SaveFile(ID3D11DeviceContext* pContext, T_STR name, ID3D11Te
 	if (Texture != nullptr)
 	{
 		// 랜더타켓 텍스처를 텍스처 파일로 저장
-		if (FAILED(hr = D3DX11SaveTextureToFile(pContext, Texture, D3DX11_IFF_DDS, name.c_str())))
+		if (FAILED(hr = D3DX11SaveTextureToFile(pContext, Texture, D3DX11_IFF_PNG, name.c_str())))
 		{
 			return true;
 		}

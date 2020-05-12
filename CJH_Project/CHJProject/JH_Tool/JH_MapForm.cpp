@@ -34,6 +34,7 @@ JH_MapForm::JH_MapForm()
 	, m_LoadFileName(_T(""))
 	, m_SplattTexture(_T(""))
 	, m_fRadius(0)
+	, m_HeightValue(0)
 {
 
 }
@@ -73,6 +74,7 @@ void JH_MapForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT19, m_LoadFileName);
 	DDX_Text(pDX, IDC_EDIT20, m_SplattTexture);
 	DDX_Text(pDX, IDC_EDIT7, m_fRadius);
+	DDX_Text(pDX, IDC_EDIT13, m_HeightValue);
 }
 
 
@@ -97,6 +99,8 @@ BEGIN_MESSAGE_MAP(JH_MapForm, CFormView)
 	ON_BN_CLICKED(IDOK3, &JH_MapForm::OnSaveMapData)
 	ON_BN_CLICKED(IDOK10, &JH_MapForm::OnLoadMapData)
 	ON_EN_CHANGE(IDC_EDIT20, &JH_MapForm::OnSplattFile20)
+	ON_EN_CHANGE(IDC_EDIT13, &JH_MapForm::OnEnChangeEdit13)
+	ON_BN_CLICKED(IDOK11, &JH_MapForm::OnMapFlatt)
 END_MESSAGE_MAP()
 
 
@@ -366,7 +370,7 @@ void JH_MapForm::OnSaveMapData()
 	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
 	I_Texture.SaveFile(pApp->m_Sample.m_pImmediateContext.Get(),
 		(T_STR)m_SplattTexture,
-		pApp->m_Sample.pUAVTexture.Get());
+		pApp->m_Sample.pReadTexture.Get());
 
 	pApp->m_Sample.SaveMapData();
 }
@@ -393,7 +397,7 @@ void JH_MapForm::OnLoadMapData()
 	
 		pApp->m_Sample.CreateMap(MapData.iRow, MapData.iCol, MapData.iCellCount, MapData.iCellSize,
 			MapData.m_BaseTextureFile.data(), MapData.m_NormalMapFile.data());
-		UpdateData(FALSE);
+		UpdateData(TRUE);
 	}
 }
 
@@ -408,4 +412,24 @@ void JH_MapForm::OnSplattFile20()
 		pApp->m_Sample.m_pSPTAFile = m_SplattTexture;
 	}
 	UpdateData(TRUE);
+}
+
+
+void JH_MapForm::OnEnChangeEdit13()
+{
+	UpdateData(TRUE);
+
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
+	pApp->m_Sample.m_HeightVlaue = m_HeightValue;
+	UpdateData(TRUE);
+}
+
+
+void JH_MapForm::OnMapFlatt()
+{
+	UpdateData(TRUE);
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
+
+	pApp->m_Sample.bMapFlatting = !pApp->m_Sample.bMapFlatting;
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }

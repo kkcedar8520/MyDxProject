@@ -208,14 +208,14 @@ PS_OUT PS(PS_IN inData)
 
 	float4 vTexture=g_SplattTexArray[0].Sample(g_Sample0,inData.t)* vAlpha.r;
 	vFinalColor=lerp(vFinalColor,vTexture,vAlpha.r);
-	vTexture+=g_SplattTexArray[1].Sample(g_Sample0,inData.t)* vAlpha.g;
+	vTexture=g_SplattTexArray[1].Sample(g_Sample0,inData.t)* vAlpha.g;
 	vFinalColor=lerp(vFinalColor,vTexture,vAlpha.g);
-	vTexture+=g_SplattTexArray[2].Sample(g_Sample0,inData.t)* vAlpha.b;
+	vTexture=g_SplattTexArray[2].Sample(g_Sample0,inData.t)* vAlpha.b;
 	vFinalColor=lerp(vFinalColor,vTexture,vAlpha.b);
-	vTexture+=g_SplattTexArray[3].Sample(g_Sample0,inData.t)* vAlpha.a;
-	vFinalColor=lerp(vFinalColor,vTexture,vAlpha.a);
-
+	vTexture=g_SplattTexArray[3].Sample(g_Sample0,inData.t)* vAlpha.a;
 	
+
+
 
 
 	vOut.c=vFinalColor*(Diffuse(normal.xyz)+Diffuse(inData.n));//lerp(vBase,vTexture,vTexture.a);

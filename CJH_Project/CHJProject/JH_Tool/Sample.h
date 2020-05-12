@@ -21,7 +21,15 @@ struct MAPDATA
 	vector<T_STR> m_pSplattAlphaTextureFile;
 	vector<float> m_fHegihtList;
 	vector<T_STR> m_pSplattTextureFile;
-
+	void Reset()
+	{
+		m_BaseTextureFile.clear();
+		m_NormalMapFile.clear();
+		m_ShaderFile.clear();
+		m_pSplattAlphaTextureFile.clear();
+		m_fHegihtList.clear();
+		m_pSplattTextureFile.clear();
+	}
 	
 
 };
@@ -78,7 +86,7 @@ public:
 	float m_fTimer;
 	//Save
 	const TCHAR*			m_pSPTAFile;
-	
+	JH_ShapePlane			m_SplattAlphaPlane;
 	//Load
 	TCHAR  m_pBuffer[256];
 	TCHAR  m_pString[256];
@@ -93,7 +101,9 @@ public:
 public:
 	bool bAttach;
 	bool bSplatting;
+	bool bMapFlatting;
 	int	CurrentObjIndex;
+	float m_HeightVlaue;
 	
 public:
 	bool CreateMap(int iWidth,
@@ -104,6 +114,7 @@ public:
 		const TCHAR* pNormalMapFileName=nullptr);
 	int CreateObj(const TCHAR* pFileName,D3DXMATRIX& m_matWorld);
 	void MapUpDown(SPHERE Sphere);
+	void MapFlatting(SPHERE Sphere);
 	//
 
 	HRESULT MapSplatting(SPHERE Sphere);
