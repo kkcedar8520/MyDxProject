@@ -45,11 +45,9 @@ TCHAR* Sample::SaveFileDlg(TCHAR* szExt, TCHAR* szTitle)
 }
 bool	Sample::SaveDataReset()
 {
-	m_sMapData.m_BaseTextureFile = nullptr;
-	m_sMapData.m_NormalMapFile = nullptr;
+
 	m_sMapData.m_pSplattAlphaTextureFile.clear();
 	m_sMapData.m_pSplattTextureFile.clear();
-	m_sMapData.m_ShaderFile = nullptr;
 	return true;
 }
 bool  Sample::SaveMapData()
@@ -66,8 +64,9 @@ bool  Sample::SaveMapData()
 		m_Map->m_TextureFileName);
 	_ftprintf(fp,_T("%s %s\n "), L"NorMalMap",
 	m_Map->m_pNormMapFileName);
+
 	_ftprintf(fp, _T("%s %s\n"), L"Shader",
-		 m_Map->m_ShaderFileName);
+		m_Map->m_ShaderFileName);
 
 	_ftprintf(fp, _T("%s %d\n"), L"SPT_ALPHA_NUM",
 		m_sMapData.m_pSplattAlphaTextureFile.size());
@@ -75,7 +74,7 @@ bool  Sample::SaveMapData()
 	for (int iSpt = 0; iSpt < m_sMapData.m_pSplattAlphaTextureFile.size(); iSpt++)
 	{
 		_ftprintf(fp, _T("%s %s\n"), L"ALPHATEX",
-			m_sMapData.m_pSplattAlphaTextureFile[iSpt]);
+			m_sMapData.m_pSplattAlphaTextureFile[iSpt].data());
 	}
 
 	for (int i = 0; i < m_Map->m_vSplattTextureList.size(); i++)
@@ -86,7 +85,7 @@ bool  Sample::SaveMapData()
 	_ftprintf(fp, _T("%s %d\n"), L"SPT_TEX_NUM", m_sMapData.m_pSplattTextureFile.size());
 	for (int i = 0; i < m_sMapData.m_pSplattTextureFile.size(); i++)
 	{
-		_ftprintf(fp, _T("%d %s"),i, m_sMapData.m_pSplattTextureFile[i]);
+		_ftprintf(fp, _T("%d %s\n"),i, m_sMapData.m_pSplattTextureFile[i].data());
 	}
 
 	int iWidth = m_Map->m_iColumNum / m_Map->m_iCellCount;
@@ -99,9 +98,8 @@ bool  Sample::SaveMapData()
 	for (int  iVertex = 0; iVertex < m_Map->m_VertexData.size(); iVertex++)
 	{
 		
-		_ftprintf(fp, _T("%10.4f"),m_Map->m_VertexData[iVertex].p.y);
-		layer++;
-		if (layer == 10){_ftprintf(fp, _T("\n")); layer = 0;}
+		_ftprintf(fp, _T("%10.4f \n"),m_Map->m_VertexData[iVertex].p.y);
+
 
 	}
 
@@ -126,25 +124,31 @@ bool  Sample::LoadMapData(const TCHAR* LoadFile)
 	//Map Basic Text Data
 
 
-	
+	TCHAR   Temp[256];
 	_fgetts(m_pBuffer, 256, fp);
 	_stscanf(m_pBuffer, _T("%s %s\n"), m_pString,
-		m_sMapData.m_BaseTextureFile);
+		Temp);
+
+	m_sMapData.m_BaseTextureFile = Temp;
+		_fgetts(m_pBuffer, 256, fp);
+		_stscanf(m_pBuffer, _T("%s %s\n"), m_pString, Temp);
+
+		m_sMapData.m_NormalMapFile = Temp;
+		_fgetts(m_pBuffer, 256, fp);
+		_stscanf(m_pBuffer, _T("%s %s\n "), m_pString, Temp);
+
+		m_sMapData.m_ShaderFile = Temp;
 
 		_fgetts(m_pBuffer, 256, fp);
-		_stscanf(m_pBuffer, _T("%s %s\n"), m_pString, m_sMapData.m_NormalMapFile);
-		
-		_fgetts(m_pBuffer, 256, fp);
-		_stscanf(m_pBuffer, _T("%s %s\n "), m_pString, m_sMapData.m_ShaderFile);
-
-		_fgetts(m_pBuffer, 256, fp);
-		_stscanf(m_pBuffer, _T("%s %d\n "), &m_iTemp);
+		_stscanf(m_pBuffer, _T("%s %d\n "),m_pString ,&m_iTemp);
 		
 		m_sMapData.m_pSplattAlphaTextureFile.resize(m_iTemp);
 		for (int iSpt = 0; iSpt < m_sMapData.m_pSplattAlphaTextureFile.size(); iSpt++)
 		{
-			_ftprintf(fp, _T("%s %s\n"), L"ALPHATEX",
-				m_sMapData.m_pSplattAlphaTextureFile[iSpt]);
+			_fgetts(m_pBuffer, 256, fp);
+			_stscanf(m_pBuffer, _T("%s %s\n"),m_pString,
+				Temp);
+			m_sMapData.m_pSplattAlphaTextureFile[iSpt] = Temp;
 		}
 
 
@@ -158,23 +162,26 @@ bool  Sample::LoadMapData(const TCHAR* LoadFile)
 	{
 		
 		_fgetts(m_pBuffer, 256, fp);
-		_stscanf(m_pBuffer, _T("%d %s"), i, m_sMapData.m_pSplattTextureFile[i]);
+		_stscanf(m_pBuffer, _T("%d %s"), &m_iTemp,Temp);
+		m_sMapData.m_pSplattTextureFile[i] = Temp;
 	}
 	_fgetts(m_pBuffer, 256, fp);
 	_stscanf(m_pBuffer, _T("%s %d %d %d %d\n"),m_pString,&m_sMapData.iRow,&m_sMapData.iCol,&m_sMapData.iCellCount,&m_sMapData.iCellSize);
 	// Vertex Height Data
 	_fgetts(m_pBuffer, 256, fp);
-	_stscanf(m_pBuffer, _T("%s %d\n %s\n"),m_pString,&m_iTemp, m_pString);
+	_stscanf(m_pBuffer, _T("%s %d\n "),m_pString,&m_iTemp, m_pString);
+
+	_fgetts(m_pBuffer, 256, fp);
+	_stscanf(m_pBuffer, _T(" %s\n"), m_pString);
+	
+	m_sMapData.m_fHegihtList.resize(m_iTemp);
 	int layer = 0;
 	for (int iVertex = 0; iVertex < m_iTemp; iVertex++)
 	{
 
 		_fgetts(m_pBuffer, 256, fp);
-		_stscanf(m_pBuffer, _T("%10.4f"),m_Map->m_vHeightList[iVertex]);
-		layer++;
-		if (layer == 10) {
-			_fgetts(m_pBuffer, 256, fp);
-			_stscanf(m_pBuffer, _T("\n")); layer = 0; }
+		_stscanf(m_pBuffer, _T("%f "), &m_sMapData.m_fHegihtList[iVertex]);
+
 
 	}
 	return true;
@@ -183,11 +190,17 @@ void 	Sample::RunComputeShaderSplatting(UINT nNumViews, ID3D11ShaderResourceView
 	ID3D11UnorderedAccessView* pUnorderedAccessView, UINT X, UINT Y, UINT Z)
 {
 
+	ID3D11ShaderResourceView* ppSRVNULL[2] = { NULL, NULL };
+	//m_pImmediateContext->CSSetShaderResources(0, 2, ppSRVNULL);
+	//m_pImmediateContext->CSSetShaderResources(1, 2, ppSRVNULL);
+	ID3D11UnorderedAccessView* ppUAViewNULL[1] = { NULL };
+	//m_pImmediateContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, NULL);
+	//m_pImmediateContext->CSSetShader(NULL, NULL, 0);
 
 	m_pImmediateContext->CSSetShader(m_pCS.Get(), NULL, 0);
+	
 
-
-	m_pImmediateContext->CSSetShaderResources(0, 1, m_pReadSrv.GetAddressOf());
+	m_pImmediateContext->CSSetShaderResources(0, 1, m_pCopySrv.GetAddressOf());
 	m_pImmediateContext->CSSetShaderResources(1, 1, m_pBufSrv.GetAddressOf());
 
 	m_pImmediateContext->CSSetUnorderedAccessViews(0,1, m_pUAV.GetAddressOf(),NULL);
@@ -195,25 +208,27 @@ void 	Sample::RunComputeShaderSplatting(UINT nNumViews, ID3D11ShaderResourceView
 	m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);
 
 	m_pImmediateContext->Dispatch(X, Y, Z);
-
+	
 	//m_pImmediateContext->CopyResource(pReadTexture.Get(), pUAVTexture.Get());
+
 
 
 	m_pImmediateContext->CSSetShader(NULL, NULL, 0);
 
 
 	// CS 세팅 해제
-	ID3D11UnorderedAccessView* ppUAViewNULL[1] = { NULL };
+	
 	m_pImmediateContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, NULL);
 
-	ID3D11ShaderResourceView* ppSRVNULL[2] = { NULL, NULL };
+	
 	m_pImmediateContext->CSSetShaderResources(0, 2, ppSRVNULL);
+	m_pImmediateContext->CSSetShaderResources(1, 2, ppSRVNULL);
 
 
 	m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);
 
 	
-
+	m_pImmediateContext->CopyResource((ID3D11Resource*)m_pCopySrv.Get(), (ID3D11Resource*)m_pReadSrv.Get());
 
 
 
@@ -319,9 +334,7 @@ HRESULT Sample::CreateCSTexture()
 	td.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	hr = m_pd3dDevice->CreateTexture2D(&td, NULL, pUAVTexture.GetAddressOf());
 
-	td.CPUAccessFlags = D3D11_CPU_ACCESS_READ ;
-	td.BindFlags = 0;;
-	td.Usage = D3D11_USAGE_STAGING;
+	
 	hr = m_pd3dDevice->CreateTexture2D(&td, NULL, pReadTexture.GetAddressOf());
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC viewDescUAV;
@@ -342,10 +355,13 @@ HRESULT Sample::CreateCSTexture()
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	hr = m_pd3dDevice->CreateShaderResourceView(pUAVTexture.Get(), &srvDesc, m_pReadSrv.GetAddressOf());
+	hr = m_pd3dDevice->CreateShaderResourceView(pReadTexture.Get(), &srvDesc, m_pCopySrv.GetAddressOf());
 
+	
+	
 
 	m_vBuf0[0].vPickPos = D3DXVECTOR3(0, 0, 0);
-	m_vBuf0[0].fRadius = 1;
+	m_vBuf0[0].fRadius = 20;
 
 
 	m_pStructureBF.Attach(DX::CreateStructureBuffer(m_pd3dDevice.Get(), &m_vBuf0[0], 1, sizeof(BufType)));
@@ -536,6 +552,12 @@ bool Sample::CreateMap(int iWidth,
 	m_Map = 0;
 
 	m_Map = make_shared<JH_Map>();
+	if (m_sMapData.m_fHegihtList.size() > 0)
+	{
+		std::copy(m_sMapData.m_fHegihtList.begin(),
+			m_sMapData.m_fHegihtList.end(),
+			back_inserter(m_Map->m_vHeightList));
+	}
 	if (false)
 	{
 		m_Map->CreateHeightMap(m_pd3dDevice.Get(), m_pImmediateContext.Get(), L"../../data/map/heightMap513.bmp");
@@ -677,16 +699,13 @@ bool Sample::Frame()
 			m_vBuf0[0].vPickPos = D3DXVECTOR3(m_NearPoint.x*30  + ((m_vBuf0[0].iRow)  / 2.0f),
 							0, -(m_NearPoint.z*30) + ((m_vBuf0[0].iCol)/ 2.0f));
 
-			for (int i = 0; i < m_Map->m_vSplattTextureList.size(); i++)
-			{
-				m_vBuf0[0].Alpha[i] = m_Map->m_vSplattTextureList[i]->GetAlpha();
-				m_vBuf0[0].iIndex[i] = i;
-			}
+		
+		
 			m_pImmediateContext->UpdateSubresource((ID3D11Resource*)m_pStructureBF.Get(), NULL, nullptr, &m_vBuf0, NULL, NULL);
 			ID3D11ShaderResourceView* aView[2] = {m_pReadSrv.Get(), m_pBufSrv.Get() };
 			RunComputeShaderSplatting(2, aView,m_pUAV.Get(), m_vBuf0[0].iRow /16, m_vBuf0[0].iCol / 16, 1);
 
-			m_pImmediateContext->PSSetShaderResources(2, 1, m_pReadSrv.GetAddressOf());
+			
 			
 		}
 	}
@@ -720,24 +739,32 @@ bool Sample::Frame()
 	JH_DebugCamera* DebugCamera = (JH_DebugCamera*)m_pMainCamera;
 	
 
-	m_RenderTarget.Begin(m_pImmediateContext.Get(), D3DXVECTOR4(1, 1, 1, 1));
-	if (m_Map != nullptr)
-	{
-	
-		m_Map->SetMatrix(nullptr,
-			&m_matTopView,
-			&m_matTopProj);
+	//m_RenderTarget.Begin(m_pImmediateContext.Get(), D3DXVECTOR4(1, 1, 1, 1));
+	//if (m_Map != nullptr)
+	//{
+	//
+	//	//m_Map->SetMatrix(nullptr,
+	//	//	&m_matTopView,
+	//	//	&m_matTopProj);
 
-		m_QuadTree->Render();
+	//	//m_QuadTree->Render();
 
 
-	}
-	m_RenderTarget.End(m_pImmediateContext.Get());
+	//}
+	//m_RenderTarget.End(m_pImmediateContext.Get());
 	return true;
 }
 bool Sample::Render()
 {
-
+	
+	ID3D11ShaderResourceView* ppSRVNULL[1] = { NULL};
+	ID3D11UnorderedAccessView* ppUAViewNULL[1] = { NULL };
+	ID3D11Buffer* ppCBNULL[1] = { NULL };
+	//m_pImmediateContext->CSSetShader(NULL, NULL, 0);
+	//m_pImmediateContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, NULL);
+	//m_pImmediateContext->CSSetShaderResources(0, 2, ppSRVNULL);
+	//m_pImmediateContext->CSSetShaderResources(1, 2, ppSRVNULL);
+	//m_pImmediateContext->CSSetConstantBuffers(0, 1, ppCBNULL);
 	if (m_Map == nullptr)return true;
 	else
 	{
@@ -759,8 +786,10 @@ bool Sample::Render()
 		m_Map->m_dxHelper.m_pContext->PSSetConstantBuffers(1, 1, pBuffers);
 		
 
-		
+		m_pImmediateContext->PSSetShaderResources(2, 1, m_pReadSrv.GetAddressOf());
+
 		m_QuadTree->Render();
+
 		if (m_CurrentObj)
 		{
 			m_CurrentObj->SetMatrix(nullptr, &m_pMainCamera->m_matView, &m_pMainCamera->m_matProj);
@@ -812,6 +841,8 @@ bool Sample::Render()
 
 
 
+
+	m_pImmediateContext->PSSetShaderResources(2, 1, ppSRVNULL);
 
 	return true;
 }

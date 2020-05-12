@@ -10,7 +10,7 @@ struct BufType
 	float3	vPickPos;
 	float	g_fRadius;
 	float   Alpha[4];
-	int		iIndex[4];
+	int		iIndex;
 	int		iCol;
 	int		iRow;
 };
@@ -41,65 +41,70 @@ void CSMAIN(uint3 GroupID : SV_GroupID, uint3 DispatchThreadID : SV_DispatchThre
 	float fDistance= distance(texturelocation.xy, Buffer0[0].vPickPos.xz);
 	
 
-	float a = 1 -smoothstep(Buffer0[0].g_fRadius, Buffer0[0].g_fRadius, fDistance);
-	if (a == 0)
-	{
-		return;
-	}
+	float a = 1-smoothstep(Buffer0[0].g_fRadius, Buffer0[0].g_fRadius+2, fDistance);
+	
+
 
 	float4 fAlpha = InputMap.Load(texturelocation);
+	//fAlpha.x = a;
+	//if (a == 0)
+	//{
+	//	fAlpha.x = 1;
+	//	OutputMap[texturelocation.xy] = fAlpha;
+	//	return;
+	//}
 
-	int i = 0;
-	while (i < 4)
-	{
-		switch (Buffer0[0].iIndex[i])
-		{
-		case 0:
-		{
-			if (fAlpha.x < a * 255)
-			{
 
-				fAlpha.x = a* Buffer0[0].Alpha[0];
-			}
-			break;
-		}
+	
 
-		case 1:
-		{
-			if (fAlpha.y < a)
-			{
-				fAlpha.y = a*Buffer0[0].Alpha[1];;
+		//switch (Buffer0[0].iIndex)
+		//{
+		//case 0:
+		//{
+		//	if (fAlpha.x < a)
+		//	{
 
-			}
-			break;
-		}
-		case 2:
-		{
-			if (fAlpha.z < a)
-			{
-				fAlpha.z = a * Buffer0[0].Alpha[2];
+		//		fAlpha.x = a;//* Buffer0[0].Alpha[0];
+		//	}
+		//	break;
+		//}
 
-			}
-			break;
-		}
-		case 3:
-		{
-			if (fAlpha.a < a)
-			{
-				fAlpha.a = a;
+		//case 1:
+		//{
+		//	if (fAlpha.y < a)
+		//	{
+		//		fAlpha.y = a * Buffer0[0].Alpha[1];;
 
-			}
-			break;
-		}
-		default:
-		{
-			break;
-		}
-		}
+		//	}
+		//	break;
+		//}
+		//case 2:
+		//{
+		//	if (fAlpha.z < a)
+		//	{
+		//		fAlpha.z = a * Buffer0[0].Alpha[2];
 
-		i++;
-	}
-	OutputMap[texturelocation.xy] = fAlpha;
+		//	}
+		//	break;
+		//}
+		//case 3:
+		//{
+		//	if (fAlpha.a < a)
+		//	{
+		//		fAlpha.a = a;
+
+		//	}
+		//	break;
+		//}
+		//default:
+		//{
+		//	break;
+		//}
+		//}
+
+	
+	
+	OutputMap[texturelocation.xy] = float4(0.5, 1, 1, 1);//fAlpha;
 		// Color * float4(fDot, fDot, fDot, fDot);
 
 

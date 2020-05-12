@@ -17,9 +17,9 @@ struct MAPDATA
 	T_STR m_BaseTextureFile;
 	T_STR m_NormalMapFile;
 	T_STR m_ShaderFile;
+	
 	vector<T_STR> m_pSplattAlphaTextureFile;
-
-
+	vector<float> m_fHegihtList;
 	vector<T_STR> m_pSplattTextureFile;
 
 	
@@ -30,7 +30,7 @@ struct BufType
 	D3DXVECTOR3 vPickPos;
 	float		fRadius;
 	float		Alpha[4];
-	int			iIndex[4];
+	int			iIndex;
 	int			iCol;
 	int			iRow;
 
@@ -53,6 +53,9 @@ public:
 	ComPtr<ID3D11Buffer>				m_pStructureBF;
 	ComPtr<ID3D11ShaderResourceView>	m_pBufSrv;
 	ComPtr<ID3D11ShaderResourceView>	m_pReadSrv;
+	ComPtr<ID3D11ShaderResourceView>	m_pCopySrv;
+
+
 	ComPtr<ID3D11UnorderedAccessView>	m_pUAV;
 	ComPtr<ID3D11ComputeShader>			m_pCS;
 	BufType								m_vBuf0[1];

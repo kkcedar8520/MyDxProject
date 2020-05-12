@@ -33,6 +33,7 @@ JH_MapForm::JH_MapForm()
 	, m_SaveFileName(_T(""))
 	, m_LoadFileName(_T(""))
 	, m_SplattTexture(_T(""))
+	, m_fRadius(0)
 {
 
 }
@@ -71,6 +72,7 @@ void JH_MapForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT18, m_SaveFileName);
 	DDX_Text(pDX, IDC_EDIT19, m_LoadFileName);
 	DDX_Text(pDX, IDC_EDIT20, m_SplattTexture);
+	DDX_Text(pDX, IDC_EDIT7, m_fRadius);
 }
 
 
@@ -174,12 +176,11 @@ void JH_MapForm::OnBnClickedOk2()
 
 void JH_MapForm::OnEnChangeEdit7()
 {
-	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
-	// CFormView::OnInitDialog() 함수를 재지정 
-	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
-	// 이 알림 메시지를 보내지 않습니다.
+	UpdateData(TRUE);
 
-	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CJHToolApp* pApp = (CJHToolApp*)AfxGetApp();
+	pApp->m_Sample.m_vBuf0[0].fRadius=m_fRadius;
+	UpdateData(TRUE);
 }
 
 
@@ -226,6 +227,7 @@ void JH_MapForm::OnBnClickedOk6()
 		FileName = dlg.GetPathName();
 		m_SplattTexture1 = FileName;
 		m_SplattTex1ID=pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture1,1);
+		pApp->m_Sample.m_vBuf0[0].iIndex = 0;
 		UpdateData(FALSE);
 	}
 }
@@ -246,6 +248,7 @@ void JH_MapForm::OnSplattTexture2BnClickedOk()
 		FileName = dlg.GetPathName();
 		m_SplattTexture2 = FileName;
 		m_SplattTex2ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture2,2);
+		pApp->m_Sample.m_vBuf0[0].iIndex = 1;
 		UpdateData(FALSE);
 	}
 }
@@ -266,6 +269,7 @@ void JH_MapForm::OnSplattTexture3BnClickedOk()
 		FileName = dlg.GetPathName();
 		m_SplattTexture3 = FileName;
 		m_SplattTex3ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture3,3);
+		pApp->m_Sample.m_vBuf0[0].iIndex = 2;
 		UpdateData(FALSE);
 	}
 }
@@ -287,6 +291,7 @@ void JH_MapForm::OnSplattTexture4BnClickedOk()
 		FileName = dlg.GetPathName();
 		m_SplattTexture4 = FileName;
 		m_SplattTex4ID = pApp->m_Sample.m_Map->AddSplattTexture(m_SplattTexture4,4);
+		pApp->m_Sample.m_vBuf0[0].iIndex = 3;
 		UpdateData(FALSE);
 	}
 }
@@ -382,9 +387,12 @@ void JH_MapForm::OnLoadMapData()
 		m_LoadFileName = FileName;
 		pApp->m_Sample.LoadMapData(m_LoadFileName);
 		
+		
+
 		MAPDATA MapData= pApp->m_Sample.m_sMapData;
+	
 		pApp->m_Sample.CreateMap(MapData.iRow, MapData.iCol, MapData.iCellCount, MapData.iCellSize,
-			MapData.m_BaseTextureFile, MapData.m_NormalMapFile);
+			MapData.m_BaseTextureFile.data(), MapData.m_NormalMapFile.data());
 		UpdateData(FALSE);
 	}
 }

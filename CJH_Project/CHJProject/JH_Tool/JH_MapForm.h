@@ -65,4 +65,5 @@ public:
 	CString m_LoadFileName;
 	CString m_SplattTexture;
 	afx_msg void OnSplattFile20();
+	float m_fRadius;
 };

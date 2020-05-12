@@ -6,7 +6,16 @@ INT JH_Map::AddSplattTexture(const TCHAR* pFileName,int Num, float Alpha)
 {
 	if (!this) return -1;
 	int index=I_Texture.Add(m_dxHelper.m_pd3dDevice, pFileName);
+	map<int, Texture*>::iterator iter;
+
+	iter = m_vSplattTextureList.find(Num-1);
 	
+
+	if (iter != m_vSplattTextureList.end())
+	{
+		m_vSplattTextureList.erase(iter);
+	}
+
 
 	m_vSplattTextureList.insert(make_pair(Num - 1, (I_Texture.GetPtr(index))));
 
